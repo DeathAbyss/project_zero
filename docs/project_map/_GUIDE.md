@@ -1,0 +1,101 @@
+# Guia — como escrever docs em `project_map/`
+
+Este guia descreve o formato dos docs compactos que vivem nesta pasta.
+Otimizados pra **IA ler em poucos tokens**, não pra humano absorver em
+prosa.
+
+## Princípio
+
+Doc é GPS, não tutorial. Existe pra responder:
+- "Onde está X?"
+- "Quem chama Y?"
+- "Qual é o valor de Z?"
+- "Que arquivo eu leio se preciso mexer em W?"
+
+Se não responde uma dessas, está fora do escopo.
+
+## Formato
+
+### Tamanho
+
+50-150 linhas por doc. Se passar de 200, dividir. Se ficar < 30, talvez
+não justifique doc próprio — anexar a outro.
+
+### Estrutura mínima
+
+```markdown
+# <nome do doc> — <área do projeto>
+
+> Frase única sobre o que esse doc cobre.
+
+## Arquivos principais
+
+| Arquivo | Função |
+|---|---|
+| [foo.js](relative/path/foo.js) | Faz X |
+| [bar.js](relative/path/bar.js:42) | Faz Y (entry em bar.js:42) |
+
+## Símbolos exportados / API pública
+
+| Símbolo | Onde | Uso |
+|---|---|---|
+| `computeX()` | [foo.js:55](relative/path/foo.js:55) | Chamada pelos consumidores Y e Z |
+
+## Valores numéricos relevantes
+
+| Constante | Valor | Onde |
+|---|---|---|
+| `MAX_THINGS` | 8 | [foo.js:12](relative/path/foo.js:12) |
+
+## Fluxo principal
+
+1. Quem chama primeiro
+2. O que acontece
+3. Para onde vai
+
+## Cross-links
+
+- Para detalhe de A, ver [a.md](a.md)
+- Para detalhe de B, ver [b.md](b.md)
+```
+
+### Regras duras
+
+1. **`file:line` em tudo.** Sem isso o doc vira prosa inútil. Confira o
+   número antes de salvar.
+2. **Tabelas > parágrafos.** Sempre que possível.
+3. **Sem exemplos de código.** O código real está no fonte; trazer pra
+   cá é fonte de drift garantida.
+4. **Sem prosa explicativa longa.** Frase curta funcional > parágrafo
+   descritivo.
+5. **Cross-link em vez de duplicar.** Se a info já existe em outro
+   doc, linka. Se mudar, muda num lugar só.
+
+## Como nomear o doc
+
+Nome curto, em inglês, lowercase, descritivo:
+
+- ✅ `towers.md`, `enemies.md`, `auth.md`, `routing.md`
+- ❌ `tower-system-explained.md`, `THE_AUTH_FLOW.md`
+
+Numerados quando há vários do mesmo tipo (mecânicas, módulos
+plug-and-play): `mechanics_1.md`, `mechanics_2.md`.
+
+## Como manter
+
+A skill `sync-project-map` (se ativada) varre os docs depois de cada
+edit em arquivo coberto pelo catálogo e relata drift. Veja
+[.claude/skills/sync-project-map/SKILL.md](../../.claude/skills/sync-project-map/SKILL.md).
+
+## Quando criar doc novo
+
+- Área inteira nova no projeto sem cobertura
+- Arquivo grande (> 500 linhas) tocado em 3+ sessões sem doc
+- Mecânica nova que toca 4+ arquivos (vira `mechanics_N.md`)
+
+## Quando NÃO criar doc
+
+- Arquivo de configuração lido 1× e nunca mais
+- Helper trivial (`utils/format.js` 30 linhas — vai numa linha de
+  `utils.md`, não doc próprio)
+- Coisa que muda toda semana (drift garantido > valor do doc)

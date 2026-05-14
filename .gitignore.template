@@ -1,0 +1,93 @@
+# Renomeie pra `.gitignore` no projeto destino. Mescle com .gitignore
+# existente se houver. Descomente seções da stack que você usa.
+
+# ==== Secrets ====
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+credentials/
+secrets/
+.secrets/
+
+# ==== Output / Build ====
+dist/
+build/
+out/
+target/
+*.tsbuildinfo
+.next/
+.nuxt/
+.svelte-kit/
+
+# ==== Dependências ====
+node_modules/
+vendor/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ==== IDE / Editor ====
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+*.sublime-workspace
+
+# ==== Logs / temp ====
+*.log
+logs/
+tmp/
+temp/
+.cache/
+
+# ==== Claude Code state ====
+.claude/agents/runs/
+.claude/cache/
+.claude/sessions/
+
+# ==== Test / coverage ====
+coverage/
+.nyc_output/
+htmlcov/
+.coverage
+*.lcov
+
+# ==== Mobile (descomente conforme uso) ====
+# *.apk
+# *.aab
+# *.ipa
+# *.dmg
+# *.app
+
+# ==== Rust ====
+# target/
+# Cargo.lock  # só pra libs; em apps, commit
+
+# ==== Go ====
+# vendor/
+# *.exe
+# *.test
+
+# ==== Java / Kotlin ====
+# *.class
+# .gradle/
+# gradle-app.setting
+
+# ==== Arquivos de teste local ====
+*.local.*
+.local/
+
+# ==== Específicos do projeto (preencher) ====
+# adicione aqui paths que só fazem sentido neste projeto
