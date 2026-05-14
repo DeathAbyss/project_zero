@@ -1,4 +1,4 @@
-# project_0 — Template base pra novos projetos
+# project_zero — Template base pra novos projetos
 
 Pasta-ponte que carrega para um projeto novo o conjunto mínimo de
 **docs, skills, hooks e padrões de coordenação** que valeu a pena
@@ -6,7 +6,7 @@ extrair de projetos anteriores (referência inicial: IsoDead TD).
 
 Objetivo: **não começar do zero**. Quando abrir um projeto novo, copie
 esta pasta pra raiz dele, abra uma sessão com o agente e mande
-"configure este projeto a partir do `project_0/README.md`". O agente
+"configure este projeto a partir do `project_zero/README.md`". O agente
 faz o setup guiado.
 
 ---
@@ -14,7 +14,7 @@ faz o setup guiado.
 ## Como aplicar este template (instruções pro AGENTE)
 
 > Esta seção é lida pelo agente quando o usuário pede "leia o
-> `project_0/README.md` e configure". Siga os passos NA ORDEM. Não pule
+> `project_zero/README.md` e configure". Siga os passos NA ORDEM. Não pule
 > os passos 1 e 6 — são os mais delicados.
 
 ### Passo 1 — Detectar o agente e o arquivo de instruções do projeto destino
@@ -179,7 +179,7 @@ no destino seguindo a tabela abaixo.
 
 ##### Arquivos com placeholder (renomeiam, podem mesclar)
 
-| Origem (project_0) | Destino | Política se já existe no destino |
+| Origem (project_zero) | Destino | Política se já existe no destino |
 |---|---|---|
 | `CLAUDE.template.md` | `CLAUDE.md` (Claude Code) **OU** arquivo nativo do agente detectado (ver §"Adaptação por agente" abaixo) | **Não sobrescreve.** Vai pra mesclagem do Passo 5b. |
 | `docs/project_map/README.template.md` | `docs/project_map/README.md` | Pergunta antes de sobrescrever. |
@@ -189,7 +189,7 @@ no destino seguindo a tabela abaixo.
 
 ##### Arquivos sem placeholder (copiam direto)
 
-| Origem (project_0) | Destino | Observações |
+| Origem (project_zero) | Destino | Observações |
 |---|---|---|
 | `SECURITY_NOTES.md` | `SECURITY_NOTES.md` (raiz) | Mescla se já existe (preserva entradas específicas do projeto). |
 | `docs/GLOSSARY.md` | `docs/GLOSSARY.md` | Mescla se já existe. |
@@ -199,7 +199,7 @@ no destino seguindo a tabela abaixo.
 | `.claude/skills/*/SKILL.md` | `.claude/skills/*/SKILL.md` | Copia tudo. Markdown legível por qualquer LLM. |
 | `.claude/agents/*.md` | `.claude/agents/*.md` | Copia tudo. Específico do Claude Code; outros agentes ignoram (não atrapalha). |
 | `.claude/hooks/check-sync-project-map.sh` | `.claude/hooks/check-sync-project-map.sh` | Copia. Catálogo `RULES` começa vazio — popula conforme cria docs do `project_map`. |
-| `memory/_PATTERNS.md` | (não copia pro projeto destino) | É referência user-level. Fica no `project_0/`. |
+| `memory/_PATTERNS.md` | (não copia pro projeto destino) | É referência user-level. Fica no `project_zero/`. |
 
 ##### Adaptação por agente (se NÃO for Claude Code)
 
@@ -250,14 +250,14 @@ paralela"). Se em dúvida, **mostra pro usuário em vez de chutar**.
 
 Pra cada uma das seções abaixo, faça a checagem acima:
 
-**a) `## Template base — project_0`** (NOVA — quase nunca existe)
+**a) `## Template base — project_zero`** (NOVA — quase nunca existe)
 
 Aponta pra este template, lista skills/hooks ativos. Modelo:
 
 ```markdown
-## Template base — project_0
+## Template base — project_zero
 
-Este projeto usa o template em `D:/Pessoal/project_0/` como base de
+Este projeto usa o template em `D:/Pessoal/project_zero/` como base de
 skills, hooks e padrões de coordenação. Antes de tarefas complexas,
 considere consultar:
 
@@ -269,6 +269,15 @@ considere consultar:
 - `polish` — qualidade estrutural. Use sob demanda.
 - `sync-project-map` — mantém `docs/project_map/` em sync. Dispara via
   hook depois de cada edit em arquivo coberto.
+- `code-review-and-quality` — review multi-axis (correctness,
+  readability, architecture, security, performance) antes de merge.
+  Use após implementação ou ao revisar código de outro agente/humano.
+- `deprecation-and-migration` — remoção segura de código / API /
+  feature. Use ao sunsetar sistema, consolidar duplicação, ou
+  decidir entre manter ou remover código legado.
+- `browser-testing-with-devtools` — testes em browser real via Chrome
+  DevTools MCP (DOM, console, network, performance). **Só relevante
+  pra projetos com UI browser** — skip em CLI/lib/mobile-native.
 
 ### Sub-agentes ativos (em `.claude/agents/`)
 
@@ -285,8 +294,8 @@ considere consultar:
 
 ### Convenções importadas
 
-- Auto-memory: ver `D:/Pessoal/project_0/memory/_PATTERNS.md`
-- Doc compacto pra IA: ver `D:/Pessoal/project_0/docs/project_map/_GUIDE.md`
+- Auto-memory: ver `D:/Pessoal/project_zero/memory/_PATTERNS.md`
+- Doc compacto pra IA: ver `D:/Pessoal/project_zero/docs/project_map/_GUIDE.md`
 - Vocabulário do projeto: `docs/GLOSSARY.md` (consulte antes de
   inventar termo)
 - Decisões arquiteturais (ADRs): `docs/decisions/` (consulte antes
@@ -299,7 +308,7 @@ considere consultar:
 
 **Adapte a lista** ao que foi efetivamente copiado — se o usuário pulou
 o `polish`, não cite. Se mudou paths absolutos pro template (ex.: clone
-em outra máquina), ajuste o `D:/Pessoal/project_0/` pro path real.
+em outra máquina), ajuste o `D:/Pessoal/project_zero/` pro path real.
 
 **b) `## Eficiência de tokens (regras pra agente)`**
 
@@ -336,7 +345,7 @@ Pra cada seção candidata (a, b, c, d):
 No fim, reporta resumido:
 ```text
 Mesclagem concluída:
-  - "Template base — project_0" → injetado (nova)
+  - "Template base — project_zero" → injetado (nova)
   - "Eficiência de tokens" → pulado (já existe, equivalente)
   - "Mapa do projeto pra IA" → atualizado (usuário escolheu mesclar)
   - "Coordenação de sessões paralelas" → injetado (nova)
@@ -421,7 +430,7 @@ Depois de copiar e injetar a referência, peça pro usuário:
 
 ### Passo 8 — NÃO copiar este README pro destino
 
-`project_0/README.md` é meta — instrução de como aplicar o template.
+`project_zero/README.md` é meta — instrução de como aplicar o template.
 Não tem por que ir junto pro projeto destino. **Pule este arquivo na
 cópia.**
 
@@ -430,7 +439,7 @@ cópia.**
 ## Estrutura do template
 
 ```text
-project_0/
+project_zero/
 ├── README.md                          # você está aqui — manual de uso
 ├── CLAUDE.template.md                 # esqueleto do CLAUDE.md
 ├── SECURITY_NOTES.md                  # arquivos/padrões sensíveis a NÃO tocar
@@ -445,10 +454,13 @@ project_0/
 │       └── _GUIDE.md                  # como escrever docs compactos pra IA
 ├── .claude/
 │   ├── skills/
-│   │   ├── roadmap-review/SKILL.md    # sparring partner reativo + proativo
-│   │   ├── dry-pass/SKILL.md          # caça duplicação de dados/lógica
-│   │   ├── polish/SKILL.md            # qualidade estrutural
-│   │   └── sync-project-map/SKILL.md  # mantém docs em sync
+│   │   ├── roadmap-review/SKILL.md              # sparring partner reativo + proativo
+│   │   ├── dry-pass/SKILL.md                    # caça duplicação de dados/lógica
+│   │   ├── polish/SKILL.md                      # qualidade estrutural
+│   │   ├── sync-project-map/SKILL.md            # mantém docs em sync
+│   │   ├── code-review-and-quality/SKILL.md     # review multi-axis antes de merge
+│   │   ├── deprecation-and-migration/SKILL.md   # remoção segura de código / API / feature
+│   │   └── browser-testing-with-devtools/SKILL.md  # testes em browser (Chrome DevTools MCP)
 │   ├── agents/
 │   │   ├── operador.md                # planejador Opus (demanda multi-papel)
 │   │   ├── dev.md                     # implementador
@@ -498,5 +510,5 @@ sempre repete — **traga pra cá**, não deixe só no projeto onde nasceu.
 
 Critério: se o padrão fizer sentido em 2+ projetos sem mudar quase
 nada, é candidato. Se for super-específico do domínio (game, web app,
-CLI, etc), pense em uma sub-variante (`project_0/variants/game/`,
-`project_0/variants/web-app/`) em vez de inflar o tronco.
+CLI, etc), pense em uma sub-variante (`project_zero/variants/game/`,
+`project_zero/variants/web-app/`) em vez de inflar o tronco.

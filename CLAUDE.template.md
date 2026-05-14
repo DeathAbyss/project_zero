@@ -2,7 +2,7 @@
 
 Notas para sessões futuras. Leia antes de começar a mexer em qualquer coisa.
 
-> **Template aplicado a partir de `project_0/`**. Mantenha esta nota
+> **Template aplicado a partir de `project_zero/`**. Mantenha esta nota
 > enquanto não houver muitas regras próprias — quando o arquivo crescer
 > e ganhar identidade, pode remover.
 
@@ -308,6 +308,10 @@ rodar `polish` priorizando essas categorias — payback direto.
 - `dry-pass` — caça duplicação (sob demanda)
 - `polish` — qualidade estrutural (sob demanda)
 - `sync-project-map` — mantém docs em sync (automática via hook)
+- `code-review-and-quality` — review multi-axis antes de merge (sob demanda)
+- `deprecation-and-migration` — remoção segura de código/API (sob demanda)
+- `browser-testing-with-devtools` — testes em browser via DevTools MCP
+  (só relevante pra projetos com UI browser)
 
 ## Sub-agentes ativos (multiagente)
 

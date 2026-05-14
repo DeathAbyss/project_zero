@@ -58,7 +58,7 @@ Does the change fit the system's design?
 
 ### 4. Security
 
-For detailed security guidance, see `security-and-hardening`. Does the change introduce vulnerabilities?
+Does the change introduce vulnerabilities? Consult [`SECURITY_NOTES.md`](../../../SECURITY_NOTES.md) for project-specific sensitive files and patterns.
 
 - Is user input validated and sanitized?
 - Are secrets kept out of code, logs, and version control?
@@ -71,7 +71,7 @@ For detailed security guidance, see `security-and-hardening`. Does the change in
 
 ### 5. Performance
 
-For detailed profiling and optimization, see `performance-optimization`. Does the change introduce performance problems?
+Does the change introduce performance problems?
 
 - Any N+1 query patterns?
 - Any unbounded loops or unconstrained data fetching?
@@ -310,10 +310,11 @@ Part of code review is dependency review:
 - [ ] **Approve** — Ready to merge
 - [ ] **Request changes** — Issues must be addressed
 ```
-## See Also
+## Related skills
 
-- For detailed security review guidance, see `references/security-checklist.md`
-- For performance review checks, see `references/performance-checklist.md`
+- [`polish`](../polish/SKILL.md) — broader structural audit (dead code, dup, file size). Use polish for codebase-wide passes; use this skill for change-level review before merge.
+- [`dry-pass`](../dry-pass/SKILL.md) — catches data duplication. If review flags "this value is hardcoded in 3 places", dry-pass is the right tool to consolidate.
+- [`SECURITY_NOTES.md`](../../../SECURITY_NOTES.md) — project-specific sensitive files/patterns to check during the security axis review.
 
 ## Common Rationalizations
 

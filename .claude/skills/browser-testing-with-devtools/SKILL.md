@@ -5,6 +5,8 @@ description: Tests in real browsers via Chrome DevTools MCP. Use when building o
 
 # Browser Testing with DevTools
 
+> **Project applicability**: Only relevant for projects with a browser-facing UI (web app, PWA, browser extension, hybrid mobile via WebView). Skip entirely for pure CLI tools, native desktop apps, mobile-native apps, or backend libraries. The agent should not invoke this skill on projects that don't run code in a browser.
+
 ## Overview
 
 Use Chrome DevTools MCP to give your agent eyes into the browser. This bridges the gap between static code analysis and live browser execution — the agent can see what the user sees, inspect the DOM, read console logs, analyze network requests, and capture performance data. Instead of guessing what's happening at runtime, verify it.
