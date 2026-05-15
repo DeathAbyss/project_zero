@@ -30,10 +30,22 @@ faz o setup guiado.
 ## Como aplicar este template (instruções pro AGENTE)
 
 > **Princípio.** Se o usuário pediu pra ler este README, a intenção é
-> APLICAR o template no projeto atual. **Não pergunte "quer aplicar?"**
-> — implícito. Auto-decida tudo que conseguir derivar do contexto.
-> Pergunta SÓ o que é genuinamente impossível inferir, num bloco único
-> no fim. Resposta vazia ("ok") = aceita os defaults.
+> APLICAR o template no projeto atual. **Zero perguntas obrigatórias.**
+> O agente lê o repo, infere tudo (stack, descrição, run command, etc.)
+> a partir do código + manifestos + README do destino, aplica o
+> template, e apresenta TUDO num bloco único de confirmação no fim —
+> com a fonte de cada valor ao lado. User só corrige o que tiver
+> errado, ou diz "ok" pra aceitar defaults.
+>
+> Pergunta só acontece em **edge cases**:
+>
+> - Múltiplos arquivos de instrução de agentes diferentes detectados
+>   no destino (qual canonical?)
+> - Projeto genuinamente vazio onde NENHUMA inferência funciona (raro)
+>
+> Não pergunta nunca: "quer aplicar?", "onde docs?", "quais skills?",
+> "mapear agora?", "como tratar CLAUDE.md existente?". Tudo isso tem
+> regra fixa.
 
 ### Etapa 1 — Auto-detect (zero perguntas se der)
 
@@ -136,19 +148,34 @@ na Etapa 1 e escreve no arquivo nativo do agente:
 | Copilot | `.github/copilot-instructions.md` |
 | Genérico | `AGENTS.md` |
 
-**Se o arquivo já existir no destino**: NÃO sobrescreve. Mescla seções
-novas só onde não há equivalente. Detecção leve por cabeçalho
-("eficiência de tokens", "project_map", "sessão paralela"). Em dúvida,
-mostra o diff ao usuário e pergunta — nunca sobrescreve calado.
+**Se o arquivo já existir no destino**: NÃO sobrescreve, NÃO pergunta.
+Regra fixa: **preserva 100% do conteúdo existente** e **anexa o
+template no fim**, separado por um divisor visual. Formato exato do
+divisor:
 
-#### Placeholders pra substituir
+```markdown
+<!-- ─────────────────────────────────────────── -->
+<!-- Conteúdo adicionado por project_zero em YYYY-MM-DD -->
+<!-- Preserva o que estava acima. Revise/integre/pode conforme fizer sentido. -->
+<!-- ─────────────────────────────────────────── -->
+```
 
-| Placeholder | Como derivar |
+Substitui `YYYY-MM-DD` pela data corrente. Depois do divisor, vem o
+conteúdo do `CLAUDE.template.md` com placeholders substituídos. Razão:
+nunca destrói trabalho do user; sempre adiciona valor; user reorganiza
+manual quando quiser.
+
+#### Placeholders pra substituir (TODOS auto-deriváveis)
+
+Princípio: **agente lê o repo e infere; nenhum campo é "sempre
+perguntado"**. Tudo vai pro bloco de confirmação final pra user revisar.
+
+| Placeholder | Cascata de derivação |
 |---|---|
-| `{{PROJECT_NAME}}` | Nome da pasta-raiz (Etapa 1d) |
-| `{{PROJECT_DESCRIPTION}}` | **Único campo SEMPRE perguntado** (1 frase do user) |
+| `{{PROJECT_NAME}}` | (1) Nome da pasta-raiz do destino; (2) `name` em `package.json`/`Cargo.toml`/`pyproject.toml`/`pom.xml` |
+| `{{PROJECT_DESCRIPTION}}` | (1) `description` em `pom.xml`/`package.json`/`Cargo.toml`/`pyproject.toml`; (2) primeira frase do `README.md` do destino após o título; (3) inferir lendo 2-3 arquivos-chave do código. Só **pergunta** se TUDO falhar (projeto greenfield vazio) |
 | `{{STACK}}` | Etapa 1c |
-| `{{PLATFORM}}` | Inferir (web/CLI/mobile/desktop/library). Ambíguo? Deixa "TBD" e marca pra confirmação. |
+| `{{PLATFORM}}` | Inferir do conteúdo (deps web → "web"; `electron` → "desktop"; `react-native` → "mobile"; CLI binary → "CLI"). Ambíguo? Deixa "TBD" e marca pra confirmação. |
 | `{{SRC_ROOT}}` | Olhar `src/`, `lib/`, `app/`. Default `src/`. Vazio se raiz é o código. |
 | `{{RUN_COMMAND}}` | Etapa 1c |
 | `{{TEST_COMMAND}}` | Etapa 1c (`nenhum` se sem testes) |
@@ -157,26 +184,36 @@ mostra o diff ao usuário e pergunta — nunca sobrescreve calado.
 Pra projetos sem i18n, remove seções relacionadas a `{{LANGUAGE}}`.
 Pra projetos sem testes, deixa `{{TEST_COMMAND}}` = `nenhum`.
 
+**Regra de ouro: agente lê e interpreta antes de perguntar.** Se a
+informação existe no repo, deriva. Pergunta é último recurso, não
+primeiro.
+
 ### Etapa 4 — Bloco único de confirmação + report final
 
-Mostra tudo num bloco. Resposta vazia = aceita defaults.
+Mostra TUDO derivado num bloco, com a fonte ao lado. Resposta vazia
+= aceita defaults. User só corrige o que tiver errado.
 
 ```text
 ✓ Setup aplicado.
 
-Agente:    <claude>
+Agente:    <claude>          ↳ detectei CLAUDE.md
 Namespace: <.claude>
 Modo:      <fresh-apply | gap-only — adicionei N arquivos novos>
-Stack:     <JavaScript ES modules + React>
-Run:       <npm run dev>
-Test:      <npm test>
-SRC_ROOT:  <src/>
+Stack:     <Spring Boot + Java 21>    ↳ pom.xml
+Run:       <./mvnw spring-boot:run>   ↳ mvnw + pom.xml
+Test:      <./mvnw test>              ↳ mvnw + pom.xml
+SRC_ROOT:  <src/main/java/>           ↳ convenção Maven
 
 Placeholders no CLAUDE.md:
-  PROJECT_NAME: <SGC>            ← nome da pasta
-  PROJECT_DESCRIPTION: <??>      ← PRECISO DE TI (1 frase)
-  PLATFORM: <web>
-  LANGUAGE/USER_LOCALE: <pt-BR>
+  PROJECT_NAME: <SGC>                 ↳ nome da pasta
+  PROJECT_DESCRIPTION:
+    <Sistema de Gestão de Concessões Florestais — Backend REST Spring Boot>
+                                      ↳ pom.xml <description>
+  PLATFORM: <web/api>                 ↳ Spring Boot indicia API HTTP
+  LANGUAGE/USER_LOCALE: <pt-BR>       ↳ conversa em PT
+
+Arquivo de instruções: CLAUDE.md já existia (19 linhas). Preservei
+intacto; anexei conteúdo do template DEPOIS, separado por divisor.
 
 Skills ativadas: todas (8). Pra desativar uma: apaga
   .claude/skills/<nome>/SKILL.md.
@@ -188,7 +225,7 @@ Mapeamento (.claude/docs/project_map/) ficou VAZIO de propósito —
 cresce orgânico via hook conforme tu editar áreas concretas. Pra
 mapear tudo de uma vez agora, pede: "mapeia o projeto inteiro".
 
-Pra ajustar algum valor: edita acima ou me fala "tá errado X, é Y".
+Pra corrigir algum valor: me fala "PROJECT_DESCRIPTION tá errado, é Y".
 Pra prosseguir: começa a usar normal.
 ```
 
