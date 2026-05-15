@@ -335,6 +335,14 @@ rodar `polish` priorizando essas categorias — payback direto.
 - `deprecation-and-migration` — remoção segura de código/API (sob demanda)
 - `browser-testing-with-devtools` — testes em browser via DevTools MCP
   (só relevante pra projetos com UI browser)
+- `switch-agent-profile` — troca/lista/cria profiles de agentes
+  (sob demanda; ver `.claude/agent-profiles/README.md`)
+- `cost-report` — relatório de tokens da sessão atual.
+  **Auto-trigger**: quando o user iniciar a sessão com "lê o README e
+  faz o setup" (ou variantes — "implementa o que o README pede",
+  "segue o README"), o agente deve rodar esta skill como ÚLTIMA ação
+  do fechamento, antes do summary. Roda sob demanda também
+  ("relatório de tokens", "cost report").
 
 ## Sub-agentes ativos (multiagente)
 
@@ -523,6 +531,11 @@ concluída, confira nesta ordem:
       atual, PR fica pra revisão humana (regra dura #2).
 - [ ] **Resumo enxuto?** 1-2 frases do que mudou + 1 frase do
       próximo passo (se houver). Sem repetir o diff. Sem emoji.
+- [ ] **Relatório de tokens?** Se a sessão começou com "lê o README e
+      faz o setup" (ou variante), rode a skill `cost-report` ANTES do
+      resumo. Devolve quanto a sessão consumiu, separando principal e
+      subagentes. Pra outras tasks não roda automaticamente — só sob
+      demanda do user.
 
 Se algum item ficou em aberto, **diga isso** em vez de declarar
 concluído. "Pronto, fica faltando X" é melhor que "pronto" implícito
