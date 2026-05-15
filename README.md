@@ -145,7 +145,7 @@ bloco único**. Não chute valores pra colocar no arquivo de instruções.
 
 ### Passo 3 — Perguntar o que o usuário quer ativar
 
-Apresente as 4 skills disponíveis e pergunte quais ativar pro projeto
+Apresente as 8 skills disponíveis e pergunte quais ativar pro projeto
 novo:
 
 | Skill | Reativa/Proativa | Quando vale a pena |
@@ -154,9 +154,15 @@ novo:
 | `dry-pass` | Sob demanda | Codebase > algumas centenas de linhas com risco de duplicação |
 | `polish` | Sob demanda | Codebase em crescimento contínuo (3+ fases) |
 | `sync-project-map` | Automática (via hook) | Só se for criar `docs/project_map/` |
+| `code-review-and-quality` | Sob demanda | Sempre vale antes de merge — review multi-axis |
+| `deprecation-and-migration` | Sob demanda | Quando vai sunsetar API/feature/código legado |
+| `browser-testing-with-devtools` | Sob demanda | Só pra projetos com UI browser (Chrome DevTools MCP) |
+| `task-retrospect` | Sob demanda | Fechamento consciente de task — varre git + sugere ações |
 
 Pergunte também se quer:
 - Hook `check-sync-project-map.sh` (depende da skill `sync-project-map`)
+- Hook `check-session-lock.sh` (depende de `SESSION_LOCK.md`)
+- Hook `on-stop-check.sh` (lembrete de fechamento no fim do turno)
 - `SESSION_LOCK.md` (se o usuário trabalha em sessões paralelas)
 - `memory/_PATTERNS.md` (referência de como organizar auto-memory)
 - **Mapeamento inicial agora ou depois** (ver Passo 6) — default
@@ -170,7 +176,6 @@ escrever no projeto destino:
 | Placeholder | O que é | Exemplo |
 |---|---|---|
 | `{{PROJECT_NAME}}` | Nome humano do projeto | "IsoDead TD" |
-| `{{PROJECT_SLUG}}` | Nome curto/slug | "isodead-td" |
 | `{{PROJECT_DESCRIPTION}}` | 1 frase descrevendo o projeto | "Tower defense isométrico em HTML5 Canvas" |
 | `{{STACK}}` | Linguagem + framework principal | "JavaScript ES modules + Canvas 2D" |
 | `{{PLATFORM}}` | Onde roda | "Web + PWA + Electron + Capacitor" |
@@ -206,6 +211,7 @@ no destino seguindo a tabela abaixo.
 | Origem (project_zero) | Destino | Observações |
 |---|---|---|
 | `SECURITY_NOTES.md` | `SECURITY_NOTES.md` (raiz) | Mescla se já existe (preserva entradas específicas do projeto). |
+| `docs/CONVENTIONS.md` | `docs/CONVENTIONS.md` | Single source of truth de regras compartilhadas (formato de docs, etc). Sobrescreve OK — outros docs apontam pra ele. |
 | `docs/GLOSSARY.md` | `docs/GLOSSARY.md` | Mescla se já existe. |
 | `docs/decisions/README.md` | `docs/decisions/README.md` | Não sobrescreve se já tem índice populado. |
 | `docs/decisions/_TEMPLATE.md` | `docs/decisions/_TEMPLATE.md` | Sobrescreve OK (é template). |
@@ -213,6 +219,8 @@ no destino seguindo a tabela abaixo.
 | `.claude/skills/*/SKILL.md` | `.claude/skills/*/SKILL.md` | Copia tudo. Markdown legível por qualquer LLM. |
 | `.claude/agents/*.md` | `.claude/agents/*.md` | Copia tudo. Específico do Claude Code; outros agentes ignoram (não atrapalha). |
 | `.claude/hooks/check-sync-project-map.sh` | `.claude/hooks/check-sync-project-map.sh` | Copia. Catálogo `RULES` começa vazio — popula conforme cria docs do `project_map`. |
+| `.claude/hooks/check-session-lock.sh` | `.claude/hooks/check-session-lock.sh` | Copia. Avisa quando Edit/Write toca arquivo reivindicado em SESSION_LOCK. |
+| `.claude/hooks/on-stop-check.sh` | `.claude/hooks/on-stop-check.sh` | Copia. Stop hook — lembrete de fechamento quando o turno teve mudanças. |
 | `memory/_PATTERNS.md` | (não copia pro projeto destino) | É referência user-level. Fica no `project_zero/`. |
 
 ##### Adaptação por agente (se NÃO for Claude Code)
@@ -292,6 +300,9 @@ considere consultar:
 - `browser-testing-with-devtools` — testes em browser real via Chrome
   DevTools MCP (DOM, console, network, performance). **Só relevante
   pra projetos com UI browser** — skip em CLI/lib/mobile-native.
+- `task-retrospect` — fechamento consciente de task. Varre git status
+  + diff e propõe lista priorizada de ações de fechamento (memory,
+  ADRs, docs, propagação). Coordena com `on-stop-check.sh`.
 
 ### Sub-agentes ativos (em `.claude/agents/`)
 
@@ -305,9 +316,15 @@ considere consultar:
 
 - `check-sync-project-map.sh` — PostToolUse em Edit/Write. Catálogo
   configurado em `.claude/hooks/check-sync-project-map.sh` (array RULES).
+- `check-session-lock.sh` — PreToolUse em Edit/Write. Avisa quando
+  arquivo está reivindicado em `SESSION_LOCK.md` por outra sessão.
+- `on-stop-check.sh` — Stop hook. Injeta lembrete de fechamento quando
+  o turno teve mudanças (não substitui o checklist; pareia com
+  a skill `task-retrospect`).
 
 ### Convenções importadas
 
+- Single source of truth pra regras compartilhadas: `docs/CONVENTIONS.md`
 - Auto-memory: ver `D:/Pessoal/project_zero/memory/_PATTERNS.md`
 - Doc compacto pra IA: ver `D:/Pessoal/project_zero/docs/project_map/_GUIDE.md`
 - Vocabulário do projeto: `docs/GLOSSARY.md` (consulte antes de
@@ -465,13 +482,17 @@ project_zero/
 ├── CLAUDE.template.md                 # esqueleto do CLAUDE.md
 ├── SECURITY_NOTES.md                  # arquivos/padrões sensíveis a NÃO tocar
 ├── .gitignore.template                # defaults sensatos (secrets, build, deps)
+├── setup.sh                           # aplica o template num destino (Passo 5 trivial)
+├── validate.sh                        # smoke test pós-setup
+├── update_template.sh                 # compara template ↔ destino, sem aplicar
 ├── docs/
+│   ├── CONVENTIONS.md                 # single source of truth de regras
 │   ├── GLOSSARY.md                    # vocabulário do projeto (cresce orgânico)
 │   ├── decisions/
 │   │   ├── README.md                  # índice de ADRs leves
 │   │   └── _TEMPLATE.md               # esqueleto pra criar decisão nova
 │   └── project_map/
-│       ├── README.template.md         # índice do project_map
+│       ├── README.template.md         # índice do project_map (canônico)
 │       └── _GUIDE.md                  # como escrever docs compactos pra IA
 ├── .claude/
 │   ├── skills/
@@ -481,15 +502,18 @@ project_zero/
 │   │   ├── sync-project-map/SKILL.md            # mantém docs em sync
 │   │   ├── code-review-and-quality/SKILL.md     # review multi-axis antes de merge
 │   │   ├── deprecation-and-migration/SKILL.md   # remoção segura de código / API / feature
-│   │   └── browser-testing-with-devtools/SKILL.md  # testes em browser (Chrome DevTools MCP)
+│   │   ├── browser-testing-with-devtools/SKILL.md  # testes em browser (Chrome DevTools MCP)
+│   │   └── task-retrospect/SKILL.md             # fechamento consciente de task
 │   ├── agents/
 │   │   ├── operador.md                # planejador Opus (demanda multi-papel)
 │   │   ├── dev.md                     # implementador
 │   │   ├── analista.md                # investigador read-only
 │   │   └── escriba.md                 # mantém docs em sync (não toca código)
 │   ├── hooks/
-│   │   └── check-sync-project-map.sh  # dispara reminder pós-edit
-│   ├── settings.template.json         # registra o hook
+│   │   ├── check-sync-project-map.sh  # PostToolUse — reminder pós-edit
+│   │   ├── check-session-lock.sh      # PreToolUse — aviso de arquivo reivindicado
+│   │   └── on-stop-check.sh           # Stop — lembrete de fechamento
+│   ├── settings.template.json         # registra os hooks acima
 │   └── SESSION_LOCK.template.md       # coordenação de sessões paralelas
 └── memory/
     └── _PATTERNS.md                   # padrões de auto-memory reutilizáveis

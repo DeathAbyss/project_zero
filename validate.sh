@@ -69,6 +69,8 @@ if [[ -d .claude ]]; then
     "test -f .claude/hooks/check-sync-project-map.sh"
   warn ".claude/hooks/check-session-lock.sh existe (opcional, pra sessões paralelas)" \
     "test -f .claude/hooks/check-session-lock.sh"
+  warn ".claude/SESSION_LOCK.md existe sem sufixo .template (senão o hook fica silencioso)" \
+    "test -f .claude/SESSION_LOCK.md && ! test -f .claude/SESSION_LOCK.template.md"
   warn ".claude/hooks/on-stop-check.sh existe (lembrete de fechamento)" \
     "test -f .claude/hooks/on-stop-check.sh"
   check ".claude/settings.json tem hook Stop registrado" \

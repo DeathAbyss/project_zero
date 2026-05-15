@@ -75,7 +75,7 @@ copy_if_absent "$PROJECT_ZERO/.claude/hooks/check-session-lock.sh" \
 copy_if_absent "$PROJECT_ZERO/.claude/hooks/on-stop-check.sh" \
                "$DEST/.claude/hooks/on-stop-check.sh"
 copy_if_absent "$PROJECT_ZERO/.claude/SESSION_LOCK.template.md" \
-               "$DEST/.claude/SESSION_LOCK.template.md"
+               "$DEST/.claude/SESSION_LOCK.md"
 
 echo
 echo "[2/5] Mesclando .gitignore..."
@@ -110,26 +110,8 @@ echo
 echo "[4/5] Criando project_map/README.md inicial..."
 
 if [[ ! -f "$DEST/docs/project_map/README.md" ]]; then
-  cat > "$DEST/docs/project_map/README.md" <<'EOF'
-# Project map — índice
-
-Docs compactos por área do projeto (50-150 linhas cada). Regras
-canônicas: [`docs/CONVENTIONS.md`](../CONVENTIONS.md).
-
-## Áreas mapeadas
-
-| Doc | Área | Status |
-|---|---|---|
-| _(vazio — popule conforme criar docs em Passo 6)_ | | |
-
-## Como adicionar uma nova área
-
-1. Crie `<area>.md` aqui seguindo `_GUIDE.md`
-2. Adicione entrada na tabela acima
-3. Adicione regex no `.claude/hooks/check-sync-project-map.sh`
-4. Adicione entrada em `.claude/skills/sync-project-map/SKILL.md`
-EOF
-  echo "  + criado: $DEST/docs/project_map/README.md"
+  cp "$PROJECT_ZERO/docs/project_map/README.template.md" "$DEST/docs/project_map/README.md"
+  echo "  + criado: $DEST/docs/project_map/README.md (a partir de README.template.md)"
 else
   echo "  · docs/project_map/README.md já existe. Mantido."
 fi
