@@ -32,15 +32,18 @@ PROJECT_ZERO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ─── Parse args ────────────────────────────────────────────────────
 AGENT="claude"
+AGENT_EXPLICIT=0
 DEST=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --agent)
       AGENT="$2"
+      AGENT_EXPLICIT=1
       shift 2
       ;;
     --agent=*)
       AGENT="${1#--agent=}"
+      AGENT_EXPLICIT=1
       shift
       ;;
     -h|--help)
@@ -54,6 +57,32 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 DEST="${DEST:-$(pwd)}"
+
+# ─── Auto-detect agente se --agent não foi passado ────────────────
+if [[ "$AGENT_EXPLICIT" == "0" ]]; then
+  if [[ -f "$DEST/CLAUDE.md" || -d "$DEST/.claude" ]]; then
+    AGENT="claude"   # já é o default, mas explicito por clareza
+  elif [[ -f "$DEST/.cursorrules" || -d "$DEST/.cursor" ]]; then
+    AGENT="cursor"
+    echo "  Auto-detect: encontrei .cursorrules / .cursor/ → --agent cursor"
+  elif [[ -f "$DEST/.clinerules" ]]; then
+    AGENT="cline"
+    echo "  Auto-detect: encontrei .clinerules → --agent cline"
+  elif [[ -f "$DEST/.windsurfrules" ]]; then
+    AGENT="windsurf"
+    echo "  Auto-detect: encontrei .windsurfrules → --agent windsurf"
+  elif [[ -f "$DEST/.aider.conf.yml" ]]; then
+    AGENT="aider"
+    echo "  Auto-detect: encontrei .aider.conf.yml → --agent aider"
+  elif [[ -f "$DEST/.github/copilot-instructions.md" ]]; then
+    AGENT="copilot"
+    echo "  Auto-detect: encontrei .github/copilot-instructions.md → --agent copilot"
+  elif [[ -f "$DEST/AGENTS.md" ]]; then
+    AGENT="generic"
+    echo "  Auto-detect: encontrei AGENTS.md → --agent generic"
+  fi
+  # Senão fica claude (default mais comum)
+fi
 
 # ─── Mapeia agente → namespace ────────────────────────────────────
 case "$AGENT" in
