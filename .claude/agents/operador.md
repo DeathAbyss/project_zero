@@ -16,7 +16,7 @@ description: |
 
   NÃO use pra: edit pequeno (principal faz direto), pergunta isolada
   (analista), tarefa já decomposta pelo usuário, refator trivial.
-tools: Read, Write, Grep, Glob, Bash, TodoWrite
+tools: Read, Write, Grep, Glob, Bash
 model: opus
 ---
 
@@ -51,12 +51,65 @@ Plano estruturado nesta forma:
 - Step 3 e 4 podem rodar em paralelo
 
 ### Despacho recomendado
+
+Cada prompt deve seguir o **formato canônico de briefing**
+(`docs/CONVENTIONS.md` — seção "Padrão do briefing entre agentes").
+Briefing mastigado economiza 10-30k tokens por agente (o agente pula
+a fase de localização e vai direto no trabalho).
+
 Step 1 → analista
-  Prompt: "..."
+  Prompt:
+  """
+  ## Objetivo
+  Confirma se Y é validado antes de Z no fluxo de auth.
+
+  ## Paths relevantes
+  - `src/auth/Token.js:42-80` — função de validação
+  - `src/middleware/auth.js` — entry point
+
+  ## Constraints
+  - Read-only. Não modificar nenhum arquivo.
+
+  ## Saída esperada
+  Relatório com 1-3 hipóteses + briefing pronto pra dev se precisar
+  de correção.
+  """
+
 Step 2 → dev
-  Prompt: "..."
+  Prompt:
+  """
+  ## Objetivo
+  Trocar validateSync por validateAsync em Token.js.
+
+  ## Paths relevantes
+  - `src/auth/Token.js:67` — chamada a substituir
+  - `src/auth/Token.js:120` — Token.refresh() depende disso
+
+  ## Constraints
+  - Respeitar contrato de Token.refresh() em :120.
+  - Sem alterar API pública.
+
+  ## Saída esperada
+  Diff + 1 frase do "porquê".
+  """
+
 Step 3 → escriba
-  Prompt: "..."
+  Prompt:
+  """
+  ## Objetivo
+  Atualizar `docs/project_map/auth.md` refletindo mudança em
+  Token.js:67.
+
+  ## Paths relevantes
+  - `docs/project_map/auth.md` — doc afetado
+  - `src/auth/Token.js:67` — fonte da mudança
+
+  ## Constraints
+  - Manter formato compacto (CONVENTIONS.md).
+
+  ## Saída esperada
+  Diff do doc + lista de outras refs cascateadas.
+  """
 
 ### Gates
 - Antes de fechar: <validação X>
@@ -76,5 +129,32 @@ Step 3 → escriba
 - **Atomização de papéis.** Cada step deve caber num único agente.
 - **Premissas explícitas.** Tudo que você assume virou pergunta
   potencial.
-- **Não cria arquivo de plano em disco** salvo se o principal pedir.
-  Plano vive na conversa.
+- **Calibra o tamanho do plano.** Se foi chamado, a task passou pela
+  Camada 1 (regra dura) E foi classificada nível ≥ 5 da Camada 2
+  (Fibonacci) no CLAUDE.md. Plano nível 5 = decomposição + despacho
+  simples. Plano nível 8 = decomposição + gates + checkpoint humano.
+  Não infle plano nível 5 com gates desnecessários nem subdimensione
+  plano nível 8 sem checkpoint.
+- **Briefing mastigado nos prompts.** Cada prompt de despacho leva
+  `file:line` concretos. Se não souber ainda, marca como "step prévio:
+  analista descobre paths" antes do step de implementação.
+- **Não cria arquivo de plano em disco** — plano vive na conversa.
+  Única exceção: o **fallback de briefing > 5k tokens** (seção abaixo),
+  que justifica `Write` no toolset. Fora disso, Write é proibido.
+
+## Fallback: briefing em arquivo (só pra casos pesados)
+
+Quando o briefing pra um agente passaria de ~5k tokens (dump de
+schema, log gigante, lista enorme de paths, contexto multi-arquivo
+denso), em vez de inflar o prompt do `Agent()`:
+
+1. Salva o briefing em `.claude/tmp/briefing_<task-slug>.md`
+   (gitignored — `.claude/tmp/` deve estar no `.gitignore` do
+   projeto).
+2. No prompt do despacho, aponta: "Lê
+   `.claude/tmp/briefing_<task-slug>.md` ANTES de começar. Contém
+   paths e contexto da task."
+3. Próxima task sobrescreve o arquivo (não precisa limpar).
+
+Use só pra briefing > 5k. Pra briefing menor, inline no prompt é
+mais barato (zero I/O extra).

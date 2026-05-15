@@ -71,14 +71,39 @@ Testes (se houver):
    depois de revisar.** Se ele explicitamente pedir "comita", aí sim —
    uma vez, naquele turno. Não interprete "pode seguir" como
    autorização pra commitar.
-2. **Não criar arquivo `.md` de plano/análise/recap sem ser pedido.**
+
+2. **Toda mudança passa por PR (pull request).** `main` / `master` /
+   branch principal NUNCA recebe edit direto. Fluxo obrigatório:
+
+   - **Antes de qualquer Edit/Write**, agente confere a branch atual
+     (`git branch --show-current`).
+   - Se estiver em `main`/`master`/principal: **PARA e pergunta** ao
+     usuário antes de editar. Sugestão: "Tô em `main`. Crio branch
+     `feature/<slug>` (ou `fix/<slug>`, `refactor/<slug>`) pra essa
+     task?" Espera confirmação. Agente NÃO cria branch sozinho — o
+     usuário decide o nome e roda `git checkout -b <branch>`.
+   - Se já estiver em branch ≠ principal: trabalha normal.
+   - Quando o usuário pedir pra commitar (regra #1 acima), commit
+     vai pra branch atual — nunca pra `main`.
+   - **PR contra `main` é decisão humana.** Agente pode preparar
+     descrição do PR se pedido, mas NUNCA faz `gh pr merge`, merge
+     pela UI do GitHub, nem força push pra `main`.
+   - **Merge é sempre humano.** Mesmo se o usuário disser "tá pronto,
+     pode mergear" — confirma duas vezes antes (rara exceção;
+     default é "abre o PR e te aviso").
+
+   Por que: PR é trilha de auditoria. Toda mudança fica visível,
+   revisável, reversível. Sem PR = mudança escapa sem revisão = bug
+   ou regressão sem rastro de causa.
+
+3. **Não criar arquivo `.md` de plano/análise/recap sem ser pedido.**
    Plano vive em `TodoWrite` ou na conversa. Arquivo intermediário
    vira lixo na próxima sessão e custa Read futuro.
-3. **Não ler / editar / commitar arquivos sensíveis.** Consulte
+4. **Não ler / editar / commitar arquivos sensíveis.** Consulte
    [`SECURITY_NOTES.md`](SECURITY_NOTES.md) na raiz — define padrões
    (`.env`, chaves, credenciais, secrets) e política do que NÃO tocar.
    Em dúvida, pergunta antes de ler.
-4. **(Convenção do projeto — preencher)**. Ex.: "Sem dependências
+5. **(Convenção do projeto — preencher)**. Ex.: "Sem dependências
    externas no runtime"; "Nada de DOM dentro do canvas"; "Toda string
    visível passa por i18n".
 
@@ -143,23 +168,21 @@ Token é orçamento. Cada mensagem do agente paga 100% do contexto
 acumulado da sessão. Estas regras existem pra manter qualidade ao
 mesmo tempo que reduz custo — não são "limites duros", são default.
 
+> **Convenções gerais** (compactação, tabela > prosa, `file:line`,
+> cross-link, naming, comentários, estilo) vivem em
+> [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md). Esta seção foca em
+> **eficiência de token** especificamente; não duplica.
+
 ### Princípios
 
-1. **Tabela > prosa, sempre.** Tabela compacta passa em 30% dos tokens
-   de um parágrafo equivalente.
-2. **`file:line` > descrever.** "Função foo está em `bar.js:42`" beats
-   "tem uma função chamada foo no arquivo bar que faz X em volta da
-   linha 40". Link clicável + zero ambiguidade.
-3. **Cross-link > duplicar.** Info em 2 lugares = 2× custo de leitura
-   + drift. Sempre referenciar a fonte única.
-4. **Read parcial > Read inteiro.** Usa `offset`/`limit` quando souber
+1. **Read parcial > Read inteiro.** Usa `offset`/`limit` quando souber
    o range. `Grep` antes de `Read` quando procurar símbolo.
    **Obrigatório dar `limit` em arquivo > 1000 linhas** — Read default
    queima 5-20k tokens facilmente.
-5. **Subagent pra investigação cara.** Read de 5+ arquivos pra
-   responder uma pergunta → delegue pra `Explore`/`Plan`. Subagent
-   devolve resumo de ~500 tokens em vez de 20k de contexto.
-6. **Path relativo > absoluto em refs.** `[foo.js:42](src/foo.js:42)`
+2. **Subagent pra investigação cara.** Read de 5+ arquivos pra
+   responder uma pergunta → delegue pra subagent. Devolve resumo de
+   ~500 tokens em vez de 20k de contexto.
+3. **Path relativo > absoluto em refs.** `[foo.js:42](src/foo.js:42)`
    é mais curto, mais clicável e mais portátil que
    `D:/.../proj/src/foo.js:42`.
 
@@ -344,6 +367,60 @@ usuario → principal → operador (planeja, devolve plano)
 | `analista` | Investigação read-only, audit, causa raiz | Baixo (só lê) |
 | `escriba` | Atualizar docs depois de mudança | Baixo |
 
+### Regra dura de decisão (Camada 1 — filtro rápido)
+
+Antes de chamar `Agent()`, responda:
+
+1. Precisa abrir 4+ arquivos? Sim → considera. 10+? Delega.
+2. Tool results vão poluir contexto com lixo? Sim → delega.
+3. 2+ investigações paralelas independentes? Sim → delega em paralelo.
+
+Se 2 respostas forem "não", **faz direto** (sem Camada 2).
+Se passar o filtro (delega), vai pra Camada 2 abaixo.
+
+### Receita de time por nível (Camada 2 — Fibonacci)
+
+Passou pela Camada 1? Esta tabela define **QUAL time** montar. Escala
+não-linear (1, 2, 3, 5, 8) força decisão qualitativa: pergunta "isso é
+mais parecido com 3 ou com 5?", não "isso é 4?".
+
+| Nível | Sinal de entrada | Time | Custo estimado |
+|---|---|---|---|
+| **1** | 1 investigação OU 1 implementação focada, escopo claro, 1 área | 1 subagente (analista OU dev) | ~10k |
+| **2** | Investigar antes de implementar, mesma área | analista → principal → dev | ~20k |
+| **3** | 2+ áreas independentes, paralelizáveis | 2-3 subagentes em paralelo | ~30-40k |
+| **5** | Escopo precisa decomposição, 3+ disciplinas envolvidas | operador planeja → principal despacha conforme plano | ~50-60k |
+| **8** | Multi-papel + decisão de escopo + gates entre passos | operador com gates → cadeia + checkpoint humano em pontos críticos | ~70k+ |
+
+**Regra anti-conservadora (importante):**
+
+- Classificou **entre 2 níveis**? Escolhe o **MENOR**. Subir "por
+  garantia" infla custo sem ganho de qualidade.
+- Default é descer, não subir. Sobre-orquestrar 1 task é pior que
+  sub-orquestrar — o segundo se corrige rápido, o primeiro paga já.
+- Se durante execução perceber que era nível maior, **re-classifica
+  explicitamente** ("essa task é nível 5, não 2 — pivotando pra
+  operador") em vez de bancar silenciosamente.
+
+**Sinais de re-classificação durante execução:**
+
+- Nível 1 vira 2 quando: a investigação encontrou que precisa editar.
+- Nível 2 vira 3 quando: a edição vai tocar outra área independente.
+- Nível 3 vira 5 quando: as áreas têm dependência que exige ordem.
+- Nível 5 vira 8 quando: aparece decisão de escopo que precisa
+  validação humana antes de seguir.
+
+**Aplicação resumida:**
+
+```
+Camada 1 (regra dura) → "faz direto"? → fim
+                     → "delega"?       → Camada 2
+
+Camada 2 (Fibonacci)  → classifica nível 1-8
+                     → segue receita do nível
+                     → re-classifica se surgir sinal
+```
+
 ### Quando NÃO usar sub-agente
 
 - Edit de 1-2 linhas → principal faz direto.
@@ -354,6 +431,49 @@ usuario → principal → operador (planeja, devolve plano)
 
 Sub-agente tem boot cost. Vale quando o trade entrega ganho real de
 contexto/especialização — não como hábito automático.
+
+### Briefing mastigado pros agentes despachados
+
+Todo `prompt` do `Agent()` deve levar paths com `file:line` quando
+possível. Briefing vago força o agente a gastar 10-30k tokens na fase
+de localização (Glob + Grep + Read exploratório) antes de chegar no
+trabalho real.
+
+**Padrão correto:**
+
+```text
+prompt: "Edita `src/auth/Token.js:67` trocando validateSync por
+validateAsync. Constraint: respeitar `Token.refresh()` em :120 que
+assume retorno síncrono — adapta a chamada."
+```
+
+**Padrão errado:**
+
+```text
+prompt: "Implementa validação assíncrona no Token"
+```
+
+**Quando o principal não sabe os paths ainda**: despache `analista`
+primeiro com briefing genérico. Use o **"Briefing pronto pra próxima
+etapa"** do output dele direto no prompt do dev/escriba. Isso
+amortiza o custo do analista entre múltiplos agentes downstream.
+
+**Paralelizar quando possível**: se o analista entregou paths de
+código + paths de doc afetados, despache `dev` e `escriba` no MESMO
+turno (`Agent()` em paralelo). Sem briefing mastigado, escriba teria
+que esperar o dev — sequencial vira paralelo.
+
+### Fallback: briefing em arquivo (só pra casos pesados)
+
+Quando o briefing pra um agente passa de ~5k tokens (dump de schema,
+log gigante, lista enorme de paths), em vez de inflar o `prompt`:
+
+1. Salva em `.claude/tmp/briefing_<task-slug>.md` (gitignored).
+2. No prompt: "Lê `.claude/tmp/briefing_<task-slug>.md` ANTES de
+   começar. Contém contexto da task."
+3. Próxima task sobrescreve o arquivo (não precisa limpar).
+
+Use só pra briefing > 5k. Inline é mais barato pra briefing menor.
 
 ### Por que ajuda no token
 
@@ -390,12 +510,17 @@ concluída, confira nesta ordem:
       escrita? Adiciona como gotcha/regra dura.
 - [ ] **Cache / version bump?** Se o projeto tem service worker /
       manifest / version field, mudança significativa pede bump.
+- [ ] **Branch correta?** `git branch --show-current` — está numa
+      branch dedicada (não `main`/`master`)? Se está em `main`,
+      mudança escapou da regra dura #2; sinaliza pro usuário pra
+      decidir (mover pra branch ou aceitar como erro pontual).
 - [ ] **Stage limpo?** Fez `git add` só do que faz parte desta task —
       não arrastou `.env`, log, build output, arquivo do template
       que ficou de fora.
 - [ ] **Commit pendente?** NÃO commita você (regra dura #1).
       Sinaliza pro usuário que tem mudanças prontas pra revisão —
-      lista enxuta dos arquivos.
+      lista enxuta dos arquivos. Lembrar: commit vai pra branch
+      atual, PR fica pra revisão humana (regra dura #2).
 - [ ] **Resumo enxuto?** 1-2 frases do que mudou + 1 frase do
       próximo passo (se houver). Sem repetir o diff. Sem emoji.
 

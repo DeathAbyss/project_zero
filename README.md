@@ -1,5 +1,19 @@
 # project_zero — Template base pra novos projetos
 
+> **TL;DR humano:**
+>
+> 1. Copia esta pasta pra raiz do seu projeto novo
+> 2. Abre uma sessão com seu agente (Claude Code, Cursor, Cline, etc.)
+> 3. Diz: "Leia o `project_zero/README.md` e configure este projeto."
+> 4. O agente roda o setup guiado em 8 passos (~5-15 min).
+>
+> Atalho automático: `bash project_zero/setup.sh` cobre o trivial.
+> Depois, `bash validate.sh` confere se tudo ficou em pé.
+>
+> Windows: usar Git Bash (já vem com Git for Windows).
+>
+> O resto deste README é instrução **pra IA** que aplica o template.
+
 Pasta-ponte que carrega para um projeto novo o conjunto mínimo de
 **docs, skills, hooks e padrões de coordenação** que valeu a pena
 extrair de projetos anteriores (referência inicial: IsoDead TD).
@@ -351,68 +365,75 @@ Mesclagem concluída:
   - "Coordenação de sessões paralelas" → injetado (nova)
 ```
 
-### Passo 6 — Mapeamento incremental (`docs/project_map/`)
+### Passo 6 — Mapear o projeto destino (OBRIGATÓRIO)
 
-Esta é a etapa que mais facilmente queima contexto. **Não tente mapear
-o codebase inteiro de uma vez.**
+Sem `docs/project_map/` populado, as skills, hooks e agentes do
+template ficam **letra morta**. Eles dependem do mapa pra funcionar
+sem desperdiçar contexto (regras como "consulta o mapa antes de
+greppar" pressupõem que o mapa existe). **Este passo NÃO é opcional.**
 
-#### 6a. Pergunte ao usuário antes de começar a ler
+A varredura inicial pode custar caro em projeto grande — por isso a
+estratégia abaixo escala por tamanho.
 
-> "Quer popular o `docs/project_map/` agora ou deixa pra mapear
-> conforme tocar cada área? Recomendo deixar pra depois — quando o
-> hook dispara em arquivo sem doc, eu pergunto se vale criar o doc
-> naquele momento."
+#### 6a. Classifique o tamanho do projeto destino
 
-**Default recomendado: DEPOIS.** O hook + a auto-extensão da skill já
-cobrem o crescimento orgânico do mapa.
+Rode `Glob` em `{{SRC_ROOT}}/**/*` pra ter uma noção. Classifique:
 
-Se o usuário insistir em mapear agora, prossiga com **estratégia
-incremental**:
+| Tamanho | Arquivos em SRC_ROOT | Estratégia |
+|---|---|---|
+| Greenfield | 0-10 | Mapeia tudo direto. Custa quase nada. |
+| Pequeno | 10-30 | Mapeia tudo em 2-3 docs. ~5-10k tokens. |
+| Médio | 30-80 | Mapeia por área top-level, priorizando núcleo. ~15-30k. |
+| Grande | 80+ | Mapeia incremental por área crítica. Despacha subagent paralelo. ~30-60k inicial; resto orgânico via hook. |
 
-#### 6b. Estratégia incremental (se mapear agora)
+#### 6b. Estratégia por tamanho
 
-1. **Lista top-level barata.** Rode `Glob` em `{{SRC_ROOT}}/*` e
-   `Glob` em `{{SRC_ROOT}}/*/` pra ver as pastas. **Não leia nenhum
-   arquivo nesta etapa.**
-2. **Categorize as pastas pelo nome.** Apresente ao usuário:
-   ```
-   Encontrei estas áreas em <SRC_ROOT>:
-   - core/ (12 arquivos)
-   - data/ (8 arquivos)
-   - ui/ (24 arquivos)
-   - utils/ (6 arquivos)
-   - tests/ (não conta — não mapeia testes)
+**Greenfield / Pequeno:**
+- Cria 1-3 docs em `docs/project_map/`
+- Popula o catálogo (Passo 6c)
+- Fim. Próximos arquivos crescem orgânico via hook.
 
-   Sugiro começar por: core/ e data/ (fundação). Aprova?
-   ```
-3. **Peça permissão explícita ANTES de ler.** Antes de cada área:
-   ```
-   Vou ler ~12 arquivos em core/ (estimo ~8k tokens, ~3 min). Pode?
-   ```
-4. **Delegue a leitura pra um subagent** (`Explore` ou `Plan`). Isso
-   isola o ruído do contexto principal — o subagent volta com um
-   resumo, não com os arquivos inteiros.
-5. **Crie UM doc por área.** Siga o formato em
-   [`docs/project_map/_GUIDE.md`](docs/project_map/_GUIDE.md): tabelas
-   densas, `file:line`, sem prosa, sem exemplos de código. 50-150
-   linhas por doc.
-6. **Após 2-3 docs, PARE e pergunte.** "Cobri core e data. Continuo
-   com ui agora ou paramos aqui?" Não enfileire 8 áreas sem checkpoint.
-7. **Popule o catálogo conforme cada doc nasce**:
-   - Atualize a tabela em `docs/project_map/README.md`
-   - Adicione a regex no array `RULES` em
-     [`.claude/hooks/check-sync-project-map.sh`](.claude/hooks/check-sync-project-map.sh)
-   - Adicione a entrada no catálogo de
-     [`.claude/skills/sync-project-map/SKILL.md`](.claude/skills/sync-project-map/SKILL.md)
+**Médio:**
+- Glob `{{SRC_ROOT}}/*/` pra ver as pastas
+- Cria 1 doc por pasta-área
+- 50-150 linhas cada (regras em [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md))
+- Popula o catálogo
 
-#### 6c. Quando mapear depois (default)
+**Grande:**
+- Glob `{{SRC_ROOT}}/*/`
+- Pergunta usuário: "Quais 3-5 áreas mais críticas?"
+- Pra cada área crítica, despacha subagent (Explore/Plan) com
+  prompt mastigado: "Lê os arquivos de `{{SRC_ROOT}}/<area>/`, gera
+  doc de 50-150 linhas em `docs/project_map/<area>.md` no formato
+  de [`docs/project_map/_GUIDE.md`](docs/project_map/_GUIDE.md)."
+- Paraleliza 2-3 subagents simultâneos (independentes)
+- Áreas não-críticas: marca em `docs/project_map/README.md` como
+  "TODO, cresce via hook"
+- Popula catálogo só pras áreas mapeadas; novas viram orgânicas
 
-Se o usuário escolheu adiar:
-- Não crie nada em `docs/project_map/` agora — só o `README.md` e o
-  `_GUIDE.md` que já são do template.
-- Quando o hook disparar pela primeira vez em arquivo sem mapping, a
-  skill `sync-project-map` vai perguntar se quer criar o doc. Aí o
-  mapa cresce orgânico.
+#### 6c. Popula o catálogo (3 lugares — não pula)
+
+Pra cada doc criado, atualiza:
+
+1. [`docs/project_map/README.md`](docs/project_map/README.md) — índice
+2. [`.claude/hooks/check-sync-project-map.sh`](.claude/hooks/check-sync-project-map.sh) — array `RULES`
+3. [`.claude/skills/sync-project-map/SKILL.md`](.claude/skills/sync-project-map/SKILL.md) — tabela de catálogo
+
+Sem isso, hook não dispara, skill não sabe que o doc existe. As regras
+de "consulta o mapa primeiro" nos agentes (analista, dev, escriba)
+viram letra morta. **Popular o catálogo é parte do mapeamento, não
+trabalho separado.**
+
+#### 6d. Valide com `validate.sh`
+
+Depois de popular, rode na raiz do projeto destino:
+
+```bash
+bash validate.sh
+```
+
+Confere: docs/project_map/ existe, catálogo populado, hook
+registrado, CONVENTIONS.md presente. Se algo falhar, o script aponta.
 
 ### Passo 7 — Validar setup
 

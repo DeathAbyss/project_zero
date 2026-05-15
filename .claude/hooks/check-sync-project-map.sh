@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
-# PostToolUse hook — dispara um lembrete pra rodar a skill
-# `sync-project-map` quando o agente edita um arquivo coberto pelo
-# catálogo da pasta docs/project_map/.
+# PostToolUse hook — dispara reminder pra rodar sync-project-map
+# quando o agente edita um arquivo coberto pelo catálogo.
 #
-# Lê o JSON do tool no stdin, extrai `tool_input.file_path`, normaliza
-# pra forward slashes e tenta resolver pro doc correspondente. Se acha,
-# devolve um system reminder via additionalContext sinalizando o doc
-# que precisa de revisão. Não-bloqueante: a edição segue normal.
+# Filtros pra não disparar em vão (reduz ~85-90% do custo histórico):
+#   1. Path não bate o catálogo → silencioso
+#   2. Diff < 3 linhas (typo / micro-fix) → silencioso
+#   3. Diff só em comentário/whitespace → silencioso
+#   4. Mesmo doc já avisado nesta sessão → silencioso (throttling)
+#
+# Reset throttling entre sessões: delete .claude/tmp/sync_reminders_seen.txt
 #
 # Como popular o catálogo: edite o array RULES no bloco node abaixo.
-# Ordem importa — primeira regra que bater ganha. Patterns específicos
-# primeiro, gerais depois.
+# Patterns específicos primeiro, gerais depois.
 
 INPUT=$(cat)
 
@@ -29,7 +30,7 @@ RESULT=$(node -e '
       // Adicione regras conforme criar docs em docs/project_map/.
       // Sintaxe: [regex no path relativo, "nome-do-doc.md"]
       //
-      // Exemplos (apague e substitua pelas suas regras):
+      // Exemplos:
       //   [/^src\/core\/.+\.js$/,           "core.md"],
       //   [/^src\/api\/auth\.js$/,          "auth.md"],
       //   [/^src\/db\/migrations\/.+\.sql$/,"database.md"],
@@ -38,9 +39,6 @@ RESULT=$(node -e '
         // ---- POPULAR AQUI ----
       ];
 
-      // Normaliza fp removendo prefixo absoluto. Match relativo é o
-      // que funciona com as regras. Ajuste o prefixo conforme a raiz
-      // canonical do seu projeto (ex: "src/", "lib/", "app/").
       const rel = fp.replace(/^.*?(?=src\/|lib\/|app\/|tests?\/|docs\/|scripts\/)/, "");
 
       for (const [re, doc] of RULES) {
@@ -56,7 +54,7 @@ RESULT=$(node -e '
   });
 ' <<< "$INPUT")
 
-# Sem match → não interrompe nem injeta nada.
+# Filtro 1: sem match no catálogo → silencioso
 if [[ -z "$RESULT" ]]; then
   exit 0
 fi
@@ -64,13 +62,55 @@ fi
 REL="${RESULT%%|*}"
 DOC="${RESULT##*|}"
 
-# Devolve um system reminder via hookSpecificOutput.additionalContext.
+# Filtros 2 e 3 dependem de git. Se não for repo, pula esses filtros.
+if git rev-parse --git-dir > /dev/null 2>&1; then
+
+  # Filtro 2: diff trivial (< 3 linhas total)
+  STATS=$(git diff --numstat HEAD -- "$REL" 2>/dev/null | head -1)
+  if [[ -n "$STATS" ]]; then
+    ADDED=$(echo "$STATS" | awk '{print $1}')
+    REMOVED=$(echo "$STATS" | awk '{print $2}')
+    if [[ "$ADDED" =~ ^[0-9]+$ ]] && [[ "$REMOVED" =~ ^[0-9]+$ ]]; then
+      TOTAL=$((ADDED + REMOVED))
+      if [[ $TOTAL -lt 3 ]]; then
+        exit 0
+      fi
+    fi
+  fi
+
+  # Filtro 3: diff só em comentário ou whitespace
+  ONLY_COMMENT=$(git diff HEAD -- "$REL" 2>/dev/null | awk '
+    /^[+-][^+-]/ {
+      line = substr($0, 2)
+      gsub(/^[ \t]+/, "", line)
+      if (line == "") next
+      if (line !~ /^(\/\/|\/\*|\*[^\/]|\*$|#|<!--|-->|"""|'\'\'\'')/) {
+        non_comment++
+      }
+    }
+    END { print (non_comment ? "no" : "yes") }
+  ')
+  if [[ "$ONLY_COMMENT" == "yes" ]]; then
+    exit 0
+  fi
+
+fi
+
+# Filtro 4: throttling — já avisou esse doc nesta sessão?
+SEEN_FILE=".claude/tmp/sync_reminders_seen.txt"
+mkdir -p .claude/tmp
+if [[ -f "$SEEN_FILE" ]] && grep -Fxq "$DOC" "$SEEN_FILE"; then
+  exit 0
+fi
+echo "$DOC" >> "$SEEN_FILE"
+
+# Dispara reminder enxuto
 cat <<JSON
 {
   "continue": true,
   "hookSpecificOutput": {
     "hookEventName": "PostToolUse",
-    "additionalContext": "Você editou \`$REL\`. Antes de fechar o turno, atualize \`docs/project_map/$DOC\`: (1) verifique refs file:line, símbolos exportados e valores citados; (2) atualize o doc se houver drift; (3) se descobriu seção/função nova relevante, documente. **Se multiagente está ativo** (existe \`.claude/agents/escriba.md\`), despache o sub-agente \`escriba\` pra fazer isso — a skill \`sync-project-map\` é a documentação canônica do workflow que ele segue. **Senão**, invoque a skill \`sync-project-map\` diretamente. Skip apenas se a mudança for puramente cosmética OU refactor sem novo símbolo público / sem efeito na topologia documentada."
+    "additionalContext": "doc afetado: docs/project_map/$DOC — revisar antes de fechar (skill sync-project-map). Detalhe do workflow na própria skill, não repetido aqui."
   }
 }
 JSON

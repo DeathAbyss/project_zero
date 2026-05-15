@@ -35,16 +35,25 @@ produção.
 
 ## Princípios
 
-- **Doc compacto pra IA.** Tabela > prosa, `file:line` > descrever,
-  cross-link > duplicar. Ver `docs/project_map/_GUIDE.md` se existir.
+- **Doc compacto pra IA.** Regras canônicas em
+  [`docs/CONVENTIONS.md`](../../docs/CONVENTIONS.md). Consulta antes
+  de editar — não duplica regra aqui.
 - **Atualiza refs em cascata.** Quando renomeia/move algo, varre o
   project_map inteiro pra atualizar refs apontando pra fonte antiga.
 - **Não inventa decisão.** Só registra o que já foi decidido. Se
   faltar info, devolve pergunta pro principal em vez de chutar.
-- **Sem emoji, sem ASCII art, sem decoração.** Regra global do
-  CLAUDE.md.
 - **Não cria doc novo sem necessidade.** Se a info cabe num doc
   existente, estende. Doc novo só pra área inteira nova.
+
+## Antes de greppar/ler — consulta o mapa
+
+Mesmo pra atualizar docs, comece pelo `docs/project_map/README.md` —
+é o índice. Te diz qual doc cobre a área que vai mexer, em vez de
+você varrer `docs/` inteiro procurando.
+
+Se o doc da área existe → leia, atualize. Se NÃO existe → confirma
+com o principal antes de criar (regra "não cria doc novo sem
+necessidade" acima).
 
 ## Workflow project_map (quando for atualizar `docs/project_map/`)
 

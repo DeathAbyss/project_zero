@@ -61,15 +61,13 @@ não justifique doc próprio — anexar a outro.
 
 ### Regras duras
 
-1. **`file:line` em tudo.** Sem isso o doc vira prosa inútil. Confira o
-   número antes de salvar.
-2. **Tabelas > parágrafos.** Sempre que possível.
-3. **Sem exemplos de código.** O código real está no fonte; trazer pra
-   cá é fonte de drift garantida.
-4. **Sem prosa explicativa longa.** Frase curta funcional > parágrafo
-   descritivo.
-5. **Cross-link em vez de duplicar.** Se a info já existe em outro
-   doc, linka. Se mudar, muda num lugar só.
+Regras canônicas de doc compacto vivem em
+[`docs/CONVENTIONS.md`](../CONVENTIONS.md) (seção "Regras pra docs
+compactos"). Não duplicar aqui — single source of truth.
+
+Resumo do que se aplica neste contexto:
+`file:line` em tudo, tabela > parágrafo, sem exemplos de código,
+sem prosa longa, cross-link > duplicar.
 
 ## Como nomear o doc
 

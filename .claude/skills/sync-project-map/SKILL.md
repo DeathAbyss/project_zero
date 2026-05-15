@@ -148,16 +148,13 @@ Se durante a varredura você descobre:
 
 ## Regras duras
 
-1. **Manter docs compactos** — 50-150 linhas. Doc inflado = IA gasta
-   tokens lendo. Se passar muito, dividir.
-2. **NÃO duplicar info entre docs** — cross-link em vez de copiar.
-3. **`file:line` em tudo** — sem isso o doc vira prosa inútil. Confira
-   o número antes de salvar.
-4. **Sem exemplos de código** — código real está no fonte. Doc é GPS,
-   não tutorial.
-5. **Sem prosa explicativa longa** — tabela > parágrafo, sempre.
-6. **Update deve mencionar EXATAMENTE o que mudou** — "atualizei doc"
-   não basta. Listar arquivo:linha + diff conceitual.
+Regras canônicas de doc compacto: [`docs/CONVENTIONS.md`](../../../docs/CONVENTIONS.md)
+(seção "Regras pra docs compactos"). Não duplicar aqui.
+
+Regras específicas desta skill:
+
+1. **Update deve mencionar EXATAMENTE o que mudou** — "atualizei doc"
+   não basta. Listar `arquivo:linha` + diff conceitual.
 
 ## Coordenação com outras skills
 

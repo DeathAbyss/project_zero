@@ -1,7 +1,39 @@
 {
-  "_comment_": "Configuração mínima do Claude Code pra ativar os hooks do template. Renomeie pra .claude/settings.json no projeto destino. Se já existir settings.json, mescle os blocos manualmente.",
+  "_comment_": "Configuração mínima do Claude Code: hook do project_map + permissões preset pra comandos read-only que aceleram o fluxo. Renomeie pra .claude/settings.json no projeto destino. Se já existir, mescle os blocos manualmente.",
+
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git stash list:*)",
+      "Bash(ls:*)",
+      "Bash(pwd)",
+      "Bash(cat:*)",
+      "Bash(wc:*)",
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(npm ls:*)",
+      "Bash(python --version)",
+      "Bash(python3 --version)"
+    ]
+  },
 
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/check-session-lock.sh"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
@@ -9,6 +41,16 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/check-sync-project-map.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/on-stop-check.sh"
           }
         ]
       }

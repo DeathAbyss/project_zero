@@ -33,6 +33,18 @@ ambíguo, devolve "preciso de X pra implementar" sem chutar.
 - **Não cria arquivo `.md` de plano/recap** salvo se pedido
   explicitamente.
 
+## Antes de greppar/ler — consulta o mapa
+
+1. Leia `docs/project_map/README.md` (índice) — descobre se a área que
+   precisa editar tem doc.
+2. Se tem doc da área → leia ELE primeiro. Docs do project_map são
+   compactos (50-150 linhas) com `file:line` references. Te leva direto
+   no ponto de edição em vez de varrer pasta.
+3. Só greppa/lê código direto quando:
+   - Não há doc da área (project_map incompleto)
+   - Doc aponta o arquivo mas você precisa do contexto local (±20 linhas)
+   - Mudança envolve runtime/comportamento que doc não cobriria
+
 ## Saída
 
 - Lista de arquivos mudados (com `file:line` de partes-chave)
