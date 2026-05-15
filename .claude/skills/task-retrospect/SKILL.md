@@ -50,7 +50,7 @@ git diff --name-only HEAD   # paths puros
 
 Categoriza por área:
 - `src/` — código de produção
-- `docs/` — documentação
+- `.claude/docs/` — documentação
 - `package.json` / `requirements.txt` / `Cargo.toml` / `go.mod` — deps
 - `.env.example` / config files — configuração
 - `tests/` — cobertura
@@ -62,9 +62,9 @@ Pra cada arquivo modificado, marca os atributos abaixo:
 
 | Categoria | Pergunta |
 |---|---|
-| **project_map** | Path está no catálogo do hook `check-sync-project-map.sh`? Doc afetado existe em `docs/project_map/`? |
+| **project_map** | Path está no catálogo do hook `check-sync-project-map.sh`? Doc afetado existe em `.claude/docs/project_map/`? |
 | **memory** | Surgiu insight surpreendente durante a task? Padrão repetido? Gotcha? Decisão não-óbvia que vale traço durável? |
-| **ADR** | Decisão arquitetural foi tomada (escolha de lib, padrão, tradeoff)? Vale registrar em `docs/decisions/`? |
+| **ADR** | Decisão arquitetural foi tomada (escolha de lib, padrão, tradeoff)? Vale registrar em `.claude/docs/decisions/`? |
 | **deps** | Adicionou dep nova? Removeu? Bumped versão? Implicações de licença/security? |
 | **i18n** | Adicionou string visível ao usuário? Cobre todos os idiomas suportados pelo projeto? |
 | **version bump** | Service worker / manifest.json / package.json version exige update por convenção do projeto? |
@@ -80,7 +80,7 @@ Formato:
 ## Ações de fechamento
 
 ### Prioridade alta (faz agora, baixo custo, alto valor)
-- [ ] project_map: docs/project_map/auth.md cita Token.js:67, mudou pra :74
+- [ ] project_map: .claude/docs/project_map/auth.md cita Token.js:67, mudou pra :74
 - [ ] deps: jsonwebtoken adicionado em package.json — registrar no README?
 
 ### Prioridade média (vale considerar antes de commitar)
@@ -99,7 +99,7 @@ Formato:
 Pra cada item aprovado:
 - `project_map` drift → despacha sub-agente `escriba` OU invoca skill `sync-project-map`
 - `memory` → salva memória nova (sistema auto-memory)
-- `ADR` → cria `docs/decisions/<num>-<slug>.md` baseado em `_TEMPLATE.md`
+- `ADR` → cria `.claude/docs/decisions/<num>-<slug>.md` baseado em `_TEMPLATE.md`
 - `deps` mudança → atualiza README/dependencies section
 - `i18n` faltante → completa traduções
 - `version bump` → edita campo `version` no arquivo apropriado
@@ -119,7 +119,7 @@ Pra cada item aprovado:
 
 ## Coordenação com outras skills
 
-- **sync-project-map**: foco em `docs/project_map/` apenas. Esta
+- **sync-project-map**: foco em `.claude/docs/project_map/` apenas. Esta
   skill chama essa quando detecta drift.
 - **polish**: foco em qualidade estrutural. Pode triggerar se
   detectar padrão repetido 3+ vezes.

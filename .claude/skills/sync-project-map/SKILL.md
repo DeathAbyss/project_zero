@@ -1,7 +1,7 @@
 ---
 name: sync-project-map
 description: |
-  Mantém os docs em `docs/project_map/` em sync com o estado real do
+  Mantém os docs em `.claude/docs/project_map/` em sync com o estado real do
   código. Sempre que o agente modifica um arquivo de produção, esta
   skill é chamada DEPOIS da implementação pra varrer o doc associado e
   atualizar refs `file:line`, símbolos exportados, valores numéricos
@@ -30,7 +30,7 @@ description: |
 > como referência ao receber a tarefa. Sem escriba ativo (projeto sem
 > multiagente), o agente principal invoca esta skill direto.
 
-Mantém `docs/project_map/` vivo. Sem isso o investimento em ter docs
+Mantém `.claude/docs/project_map/` vivo. Sem isso o investimento em ter docs
 otimizados pra IA vira arquivo morto em poucas semanas.
 
 ## Quando rodar
@@ -53,7 +53,7 @@ otimizados pra IA vira arquivo morto em poucas semanas.
 ## Catálogo arquivo → doc
 
 > Esta tabela é o coração da skill. Cresce com o projeto. Preencha
-> conforme criar docs em `docs/project_map/`.
+> conforme criar docs em `.claude/docs/project_map/`.
 
 | Path padrão | Doc |
 |---|---|
@@ -77,7 +77,7 @@ Pra cada arquivo editado:
 ### 2. Leia o doc + o arquivo real
 
 Pra cada par `(arquivo, doc)`:
-- Read `docs/project_map/<doc>.md`.
+- Read `.claude/docs/project_map/<doc>.md`.
 - Read seções do arquivo real referenciadas no doc (especialmente
   `file:line` citados).
 
@@ -142,13 +142,13 @@ Se durante a varredura você descobre:
 
 **c. Após estender o catálogo**, atualizar:
 - Esta SKILL.md (tabela acima).
-- `docs/project_map/README.md` (índice).
+- `.claude/docs/project_map/README.md` (índice).
 - `.claude/hooks/check-sync-project-map.sh` (PATTERNS) se for novo
   arquivo fora do path padrão.
 
 ## Regras duras
 
-Regras canônicas de doc compacto: [`docs/CONVENTIONS.md`](../../../docs/CONVENTIONS.md)
+Regras canônicas de doc compacto: [`.claude/docs/CONVENTIONS.md`](../../docs/CONVENTIONS.md)
 (seção "Regras pra docs compactos"). Não duplicar aqui.
 
 Regras específicas desta skill:

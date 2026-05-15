@@ -252,12 +252,12 @@ Documentação descrevendo fases já fechadas em detalhe extremo,
 session recaps antigos, planejamentos que viraram realidade.
 
 Como pegar:
-- Listar `docs/*.md` com data ou referência a fase explícita.
+- Listar `.claude/docs/*.md` com data ou referência a fase explícita.
 - Cruzar com `CLAUDE.md` — fase concluída cuja doc detalhada ainda
   existe? candidato a condensar.
 
 Cuidado: NUNCA apagar sem o user explicitamente autorizar. Sugestão
-default: mover pra `docs/archive/` em vez de deletar.
+default: mover pra `.claude/docs/archive/` em vez de deletar.
 
 ### 18. Logs verbosos em hot paths
 
@@ -268,16 +268,16 @@ tokens lendo log irrelevante.
 Cuidado: `console.warn`/`console.error` que disparam só em condição
 excepcional NÃO são problema — manter.
 
-### 19. Onboarding duplicado entre CLAUDE.md e docs/
+### 19. Onboarding duplicado entre CLAUDE.md e .claude/docs/
 
 Setup, estrutura, comandos comuns aparecem em 2-3 lugares. Qualquer
 leitura inicial de sessão paga 2-3× pela mesma info.
 
 Estratégia de consolidação:
 - `CLAUDE.md` é a fonte canônica pra rules + gotchas.
-- `docs/*.md` deve ser tópico-específico — sem reintrodução de
+- `.claude/docs/*.md` deve ser tópico-específico — sem reintrodução de
   setup geral.
-- Quando duplicar, deixar `CLAUDE.md` manter + remover de `docs/` +
+- Quando duplicar, deixar `CLAUDE.md` manter + remover de `.claude/docs/` +
   cross-link se relevante.
 
 ## Como o output é apresentado

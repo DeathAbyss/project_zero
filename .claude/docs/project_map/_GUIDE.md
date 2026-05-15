@@ -62,7 +62,7 @@ não justifique doc próprio — anexar a outro.
 ### Regras duras
 
 Regras canônicas de doc compacto vivem em
-[`docs/CONVENTIONS.md`](../CONVENTIONS.md) (seção "Regras pra docs
+[`.claude/docs/CONVENTIONS.md`](../CONVENTIONS.md) (seção "Regras pra docs
 compactos"). Não duplicar aqui — single source of truth.
 
 Resumo do que se aplica neste contexto:

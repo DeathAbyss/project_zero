@@ -22,11 +22,11 @@ fi
 # Arquivos do template que valem comparar (skip de placeholders).
 FILES=(
   "SECURITY_NOTES.md"
-  "docs/CONVENTIONS.md"
-  "docs/GLOSSARY.md"
-  "docs/decisions/README.md"
-  "docs/decisions/_TEMPLATE.md"
-  "docs/project_map/_GUIDE.md"
+  ".claude/docs/CONVENTIONS.md"
+  ".claude/docs/GLOSSARY.md"
+  ".claude/docs/decisions/README.md"
+  ".claude/docs/decisions/_TEMPLATE.md"
+  ".claude/docs/project_map/_GUIDE.md"
   ".claude/skills/roadmap-review/SKILL.md"
   ".claude/skills/dry-pass/SKILL.md"
   ".claude/skills/polish/SKILL.md"

@@ -135,13 +135,64 @@ Esses 3 valores são usados em todos os passos seguintes.
 
 Antes de qualquer copy/paste, leia o estado real:
 
-- Existe `.claude/skills/`, `.claude/hooks/`, `docs/project_map/`?
+- Existe `.claude/skills/`, `.claude/hooks/`, `.claude/docs/project_map/`?
 - Qual a stack? (Node? Python? Rust? Game engine? Web puro?)
 - Qual a plataforma alvo? (CLI, web, mobile, desktop, biblioteca)
 - Tem build step? Tem testes? Como roda local?
 
 Se algo não for claro pelo conteúdo do repo, **pergunte ao usuário em
 bloco único**. Não chute valores pra colocar no arquivo de instruções.
+
+#### Passo 2.1 — Onde docs de IA vivem (REGRA DURA)
+
+**Docs do template SEMPRE vão pra `<NS>/docs/` do destino**, onde
+`<NS>` é o namespace do agente alvo:
+
+| Agente alvo (detectado no Passo 1) | Namespace `<NS>` | Flag pro setup.sh |
+|---|---|---|
+| Claude Code | `.claude` | (default) ou `--agent claude` |
+| Cursor | `.cursor` | `--agent cursor` |
+| Cline | `.cline` | `--agent cline` |
+| Windsurf | `.windsurf` | `--agent windsurf` |
+| Aider | `.aider` | `--agent aider` |
+| GitHub Copilot | `.github/copilot` | `--agent copilot` |
+| Genérico / AGENTS.md / outro | `.ai` | `--agent generic` |
+
+**NUNCA crie `docs/` solto na raiz** — `docs/` na raiz é território
+do usuário (docs humanos, especificações, etc.). Se existe, **ignora**:
+não mescla, não migra, não invade.
+
+Política do setup:
+
+| Cenário no destino | Ação |
+|---|---|
+| `<NS>/docs/` já existe | **Reusa.** Copia só os arquivos do template que estiverem faltando — não sobrescreve. |
+| `<NS>/docs/` não existe | **Cria** e popula com os arquivos do template. |
+| `docs/` na raiz existe (qualquer conteúdo) | **Ignora.** Não é problema do template. |
+
+Comando concreto (Claude Code):
+
+```bash
+# NUNCA: mkdir docs/ na raiz do destino
+# SEMPRE: mkdir -p .claude/docs/
+mkdir -p .claude/docs/{project_map,decisions}
+```
+
+Pra outro agente, basta trocar `.claude` pelo namespace correspondente
+(ex.: `.cursor/docs/`).
+
+**Como o setup.sh lida com isso automaticamente:** o script aceita
+`--agent <tipo>`. Internamente, todos os arquivos do template usam
+`.claude/` (o nome "canônico" do source); na cópia pro destino, se
+o agente alvo não é Claude Code, o script reescreve `.claude/` →
+`<NS>/` tanto nas **paths de destino** quanto **dentro dos arquivos**
+copiados. Resultado: o destino fica com namespace coerente do agente
+dele, sem `.claude/` órfão.
+
+**Se você (a IA) está prestes a criar `docs/` na raiz do projeto da
+pessoa, PARE.** Reveja esta seção. Use o namespace correto do agente.
+Replicar estrutura em `docs/` raiz quando já existe `<NS>/docs/` é
+o bug que essa regra previne.
 
 ### Passo 3 — Perguntar o que o usuário quer ativar
 
@@ -153,7 +204,7 @@ novo:
 | `roadmap-review` | Sob demanda | Sempre vale — sparring de planejamento, agnóstico |
 | `dry-pass` | Sob demanda | Codebase > algumas centenas de linhas com risco de duplicação |
 | `polish` | Sob demanda | Codebase em crescimento contínuo (3+ fases) |
-| `sync-project-map` | Automática (via hook) | Só se for criar `docs/project_map/` |
+| `sync-project-map` | Automática (via hook) | Só se for criar `.claude/docs/project_map/` |
 | `code-review-and-quality` | Sob demanda | Sempre vale antes de merge — review multi-axis |
 | `deprecation-and-migration` | Sob demanda | Quando vai sunsetar API/feature/código legado |
 | `browser-testing-with-devtools` | Sob demanda | Só pra projetos com UI browser (Chrome DevTools MCP) |
@@ -201,7 +252,7 @@ no destino seguindo a tabela abaixo.
 | Origem (project_zero) | Destino | Política se já existe no destino |
 |---|---|---|
 | `CLAUDE.template.md` | `CLAUDE.md` (Claude Code) **OU** arquivo nativo do agente detectado (ver §"Adaptação por agente" abaixo) | **Não sobrescreve.** Vai pra mesclagem do Passo 5b. |
-| `docs/project_map/README.template.md` | `docs/project_map/README.md` | Pergunta antes de sobrescrever. |
+| `.claude/docs/project_map/README.template.md` | `.claude/docs/project_map/README.md` | Pergunta antes de sobrescrever. |
 | `.claude/SESSION_LOCK.template.md` | `.claude/SESSION_LOCK.md` | Mantém o existente se já tem sessões reivindicadas. |
 | `.claude/settings.template.json` | `.claude/settings.json` | **Mescla** chaves (não sobrescreve). Específico do Claude Code; outros agentes ignoram. |
 | `.gitignore.template` | `.gitignore` | **Mescla por linha** (adiciona o que falta; não duplica linhas existentes). |
@@ -211,11 +262,11 @@ no destino seguindo a tabela abaixo.
 | Origem (project_zero) | Destino | Observações |
 |---|---|---|
 | `SECURITY_NOTES.md` | `SECURITY_NOTES.md` (raiz) | Mescla se já existe (preserva entradas específicas do projeto). |
-| `docs/CONVENTIONS.md` | `docs/CONVENTIONS.md` | Single source of truth de regras compartilhadas (formato de docs, etc). Sobrescreve OK — outros docs apontam pra ele. |
-| `docs/GLOSSARY.md` | `docs/GLOSSARY.md` | Mescla se já existe. |
-| `docs/decisions/README.md` | `docs/decisions/README.md` | Não sobrescreve se já tem índice populado. |
-| `docs/decisions/_TEMPLATE.md` | `docs/decisions/_TEMPLATE.md` | Sobrescreve OK (é template). |
-| `docs/project_map/_GUIDE.md` | `docs/project_map/_GUIDE.md` | Sobrescreve OK (é guia canônico). |
+| `.claude/docs/CONVENTIONS.md` | `.claude/docs/CONVENTIONS.md` | Single source of truth de regras compartilhadas (formato de docs, etc). Sobrescreve OK — outros docs apontam pra ele. |
+| `.claude/docs/GLOSSARY.md` | `.claude/docs/GLOSSARY.md` | Mescla se já existe. |
+| `.claude/docs/decisions/README.md` | `.claude/docs/decisions/README.md` | Não sobrescreve se já tem índice populado. |
+| `.claude/docs/decisions/_TEMPLATE.md` | `.claude/docs/decisions/_TEMPLATE.md` | Sobrescreve OK (é template). |
+| `.claude/docs/project_map/_GUIDE.md` | `.claude/docs/project_map/_GUIDE.md` | Sobrescreve OK (é guia canônico). |
 | `.claude/skills/*/SKILL.md` | `.claude/skills/*/SKILL.md` | Copia tudo. Markdown legível por qualquer LLM. |
 | `.claude/agents/*.md` | `.claude/agents/*.md` | Copia tudo. Específico do Claude Code; outros agentes ignoram (não atrapalha). |
 | `.claude/hooks/check-sync-project-map.sh` | `.claude/hooks/check-sync-project-map.sh` | Copia. Catálogo `RULES` começa vazio — popula conforme cria docs do `project_map`. |
@@ -289,7 +340,7 @@ considere consultar:
   "audita o projeto", "o que tá faltando?".
 - `dry-pass` — caça duplicação de dados/lógica. Use sob demanda.
 - `polish` — qualidade estrutural. Use sob demanda.
-- `sync-project-map` — mantém `docs/project_map/` em sync. Dispara via
+- `sync-project-map` — mantém `.claude/docs/project_map/` em sync. Dispara via
   hook depois de cada edit em arquivo coberto.
 - `code-review-and-quality` — review multi-axis (correctness,
   readability, architecture, security, performance) antes de merge.
@@ -324,12 +375,12 @@ considere consultar:
 
 ### Convenções importadas
 
-- Single source of truth pra regras compartilhadas: `docs/CONVENTIONS.md`
+- Single source of truth pra regras compartilhadas: `.claude/docs/CONVENTIONS.md`
 - Auto-memory: ver `D:/Pessoal/project_zero/memory/_PATTERNS.md`
-- Doc compacto pra IA: ver `D:/Pessoal/project_zero/docs/project_map/_GUIDE.md`
-- Vocabulário do projeto: `docs/GLOSSARY.md` (consulte antes de
+- Doc compacto pra IA: ver `D:/Pessoal/project_zero/.claude/docs/project_map/_GUIDE.md`
+- Vocabulário do projeto: `.claude/docs/GLOSSARY.md` (consulte antes de
   inventar termo)
-- Decisões arquiteturais (ADRs): `docs/decisions/` (consulte antes
+- Decisões arquiteturais (ADRs): `.claude/docs/decisions/` (consulte antes
   de reverter escolha)
 - Arquivos sensíveis a não tocar: `SECURITY_NOTES.md` (consulte
   antes de ler arquivo que parece secreto)
@@ -352,7 +403,7 @@ gatilho do polish).
 **c) `## Mapa do projeto pra IA`**
 
 Conteúdo está em [`CLAUDE.template.md`](CLAUDE.template.md) — seção
-homônima. Só faz sentido injetar se `docs/project_map/` foi criado no
+homônima. Só faz sentido injetar se `.claude/docs/project_map/` foi criado no
 Passo 5a. Pula se o destino não tiver a pasta. Se já tem seção com
 `## Mapa do projeto`, `## Project map`, ou similar, perguntar.
 
@@ -384,7 +435,7 @@ Mesclagem concluída:
 
 ### Passo 6 — Mapear o projeto destino (OBRIGATÓRIO)
 
-Sem `docs/project_map/` populado, as skills, hooks e agentes do
+Sem `.claude/docs/project_map/` populado, as skills, hooks e agentes do
 template ficam **letra morta**. Eles dependem do mapa pra funcionar
 sem desperdiçar contexto (regras como "consulta o mapa antes de
 greppar" pressupõem que o mapa existe). **Este passo NÃO é opcional.**
@@ -406,14 +457,14 @@ Rode `Glob` em `{{SRC_ROOT}}/**/*` pra ter uma noção. Classifique:
 #### 6b. Estratégia por tamanho
 
 **Greenfield / Pequeno:**
-- Cria 1-3 docs em `docs/project_map/`
+- Cria 1-3 docs em `.claude/docs/project_map/`
 - Popula o catálogo (Passo 6c)
 - Fim. Próximos arquivos crescem orgânico via hook.
 
 **Médio:**
 - Glob `{{SRC_ROOT}}/*/` pra ver as pastas
 - Cria 1 doc por pasta-área
-- 50-150 linhas cada (regras em [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md))
+- 50-150 linhas cada (regras em [`.claude/docs/CONVENTIONS.md`](.claude/docs/CONVENTIONS.md))
 - Popula o catálogo
 
 **Grande:**
@@ -421,10 +472,10 @@ Rode `Glob` em `{{SRC_ROOT}}/**/*` pra ter uma noção. Classifique:
 - Pergunta usuário: "Quais 3-5 áreas mais críticas?"
 - Pra cada área crítica, despacha subagent (Explore/Plan) com
   prompt mastigado: "Lê os arquivos de `{{SRC_ROOT}}/<area>/`, gera
-  doc de 50-150 linhas em `docs/project_map/<area>.md` no formato
-  de [`docs/project_map/_GUIDE.md`](docs/project_map/_GUIDE.md)."
+  doc de 50-150 linhas em `.claude/docs/project_map/<area>.md` no formato
+  de [`.claude/docs/project_map/_GUIDE.md`](.claude/docs/project_map/_GUIDE.md)."
 - Paraleliza 2-3 subagents simultâneos (independentes)
-- Áreas não-críticas: marca em `docs/project_map/README.md` como
+- Áreas não-críticas: marca em `.claude/docs/project_map/README.md` como
   "TODO, cresce via hook"
 - Popula catálogo só pras áreas mapeadas; novas viram orgânicas
 
@@ -432,7 +483,7 @@ Rode `Glob` em `{{SRC_ROOT}}/**/*` pra ter uma noção. Classifique:
 
 Pra cada doc criado, atualiza:
 
-1. [`docs/project_map/README.md`](docs/project_map/README.md) — índice
+1. [`.claude/docs/project_map/README.md`](.claude/docs/project_map/README.md) — índice
 2. [`.claude/hooks/check-sync-project-map.sh`](.claude/hooks/check-sync-project-map.sh) — array `RULES`
 3. [`.claude/skills/sync-project-map/SKILL.md`](.claude/skills/sync-project-map/SKILL.md) — tabela de catálogo
 
@@ -449,7 +500,7 @@ Depois de popular, rode na raiz do projeto destino:
 bash validate.sh
 ```
 
-Confere: docs/project_map/ existe, catálogo populado, hook
+Confere: .claude/docs/project_map/ existe, catálogo populado, hook
 registrado, CONVENTIONS.md presente. Se algo falhar, o script aponta.
 
 ### Passo 7 — Validar setup
@@ -485,16 +536,16 @@ project_zero/
 ├── setup.sh                           # aplica o template num destino (Passo 5 trivial)
 ├── validate.sh                        # smoke test pós-setup
 ├── update_template.sh                 # compara template ↔ destino, sem aplicar
-├── docs/
-│   ├── CONVENTIONS.md                 # single source of truth de regras
-│   ├── GLOSSARY.md                    # vocabulário do projeto (cresce orgânico)
-│   ├── decisions/
-│   │   ├── README.md                  # índice de ADRs leves
-│   │   └── _TEMPLATE.md               # esqueleto pra criar decisão nova
-│   └── project_map/
-│       ├── README.template.md         # índice do project_map (canônico)
-│       └── _GUIDE.md                  # como escrever docs compactos pra IA
 ├── .claude/
+│   ├── docs/                          # docs de IA — TUDO aqui, NUNCA solto em /docs
+│   │   ├── CONVENTIONS.md             # single source of truth de regras
+│   │   ├── GLOSSARY.md                # vocabulário do projeto (cresce orgânico)
+│   │   ├── decisions/
+│   │   │   ├── README.md              # índice de ADRs leves
+│   │   │   └── _TEMPLATE.md           # esqueleto pra criar decisão nova
+│   │   └── project_map/
+│   │       ├── README.template.md     # índice do project_map (canônico)
+│   │       └── _GUIDE.md              # como escrever docs compactos pra IA
 │   ├── skills/
 │   │   ├── roadmap-review/SKILL.md              # sparring partner reativo + proativo
 │   │   ├── dry-pass/SKILL.md                    # caça duplicação de dados/lógica

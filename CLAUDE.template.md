@@ -8,13 +8,13 @@ Notas para sessões futuras. Leia antes de começar a mexer em qualquer coisa.
 
 ## Mapa do projeto pra IA — LEIA PRIMEIRO
 
-[`docs/project_map/`](docs/project_map/) contém docs compactos
+[`.claude/docs/project_map/`](.claude/docs/project_map/) contém docs compactos
 (50-150 linhas cada) mapeando cada área do projeto com `file:line`
 references. Otimizados pra IA ler — tabelas densas, sem prosa, sem
 exemplos de código (esses ficam no fonte).
 
 **Antes de greppar/explorar, leia o doc relevante** — costuma economizar
-5-10 reads. Comece pelo [README.md](docs/project_map/README.md) (índice).
+5-10 reads. Comece pelo [README.md](.claude/docs/project_map/README.md) (índice).
 
 **Regra de manutenção**: ao mudar mecânica documentada, **atualize o doc
 no MESMO turno**. Drift = bug invisível, pior que não ter doc. Doc tem
@@ -29,10 +29,10 @@ premissa.
 Dois arquivos compactos que evitam que a IA invente termo ou reverta
 decisão sem entender:
 
-- [`docs/GLOSSARY.md`](docs/GLOSSARY.md) — vocabulário específico
+- [`.claude/docs/GLOSSARY.md`](.claude/docs/GLOSSARY.md) — vocabulário específico
   do projeto. Antes de pedir definição de um termo do domínio,
   consulte aqui.
-- [`docs/decisions/`](docs/decisions/) — ADRs leves explicando por
+- [`.claude/docs/decisions/`](.claude/docs/decisions/) — ADRs leves explicando por
   que escolhas foram feitas. Antes de "melhorar" algo que parece
   arbitrário, confira se tem decisão registrada.
 
@@ -111,7 +111,7 @@ Testes (se houver):
 
 > Diagrama ASCII ou descrição curta da arquitetura. Ponto de entrada,
 > camadas principais, fluxo de dados. Mantenha curto — detalhes ficam
-> em `docs/project_map/`.
+> em `.claude/docs/project_map/`.
 
 ```text
 {{SRC_ROOT}}main.* → ...
@@ -138,7 +138,7 @@ Testes (se houver):
 ### Renomear símbolo público
 1. Grep do nome antigo no projeto inteiro
 2. Atualizar todas as refs
-3. Atualizar `docs/project_map/` se citado
+3. Atualizar `.claude/docs/project_map/` se citado
 
 ## Estilo de código
 
@@ -170,7 +170,7 @@ mesmo tempo que reduz custo — não são "limites duros", são default.
 
 > **Convenções gerais** (compactação, tabela > prosa, `file:line`,
 > cross-link, naming, comentários, estilo) vivem em
-> [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md). Esta seção foca em
+> [`.claude/docs/CONVENTIONS.md`](.claude/docs/CONVENTIONS.md). Esta seção foca em
 > **eficiência de token** especificamente; não duplica.
 
 ### Princípios
@@ -193,7 +193,7 @@ Onde colocar a informação importa pro custo recorrente:
 | Canal | Carregamento | Quando usar |
 |---|---|---|
 | `CLAUDE.md` (este arquivo) | Sempre, todo turno | Regras duras + gotchas que afetam decisões em qualquer tarefa |
-| `docs/project_map/*.md` | Sob demanda, agente lê | Topologia do código por área |
+| `.claude/docs/project_map/*.md` | Sob demanda, agente lê | Topologia do código por área |
 | `.claude/skills/*/SKILL.md` | Só quando invocada | Workflow especializado (audit, refactor, planejamento) |
 | `memory/*.md` | Entre sessões | Traço durável sobre usuário/projeto (não state efêmero) |
 | Subagent (`Explore`, `Plan`, etc.) | Sob demanda, isolado | Investigação pesada que retornaria resumo |
@@ -306,9 +306,9 @@ diagrama mental, traz o diagrama. "Direto" não é "lacônico burro".
 A skill `polish` tem 4 categorias com efeito direto em token:
 
 - #16 (comentários verbosos sem valor)
-- #17 (docs stale/duplicadas em `docs/`)
+- #17 (docs stale/duplicadas em `.claude/docs/`)
 - #18 (logs em hot paths poluindo console)
-- #19 (onboarding duplicado entre CLAUDE.md e docs/)
+- #19 (onboarding duplicado entre CLAUDE.md e .claude/docs/)
 
 Quando o agente notar contexto pesado em sessões recentes, sugerir
 rodar `polish` priorizando essas categorias — payback direto.

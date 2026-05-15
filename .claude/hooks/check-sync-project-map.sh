@@ -27,7 +27,7 @@ RESULT=$(node -e '
       // ====================================================================
       // CATÁLOGO arquivo → doc
       // ====================================================================
-      // Adicione regras conforme criar docs em docs/project_map/.
+      // Adicione regras conforme criar docs em .claude/docs/project_map/.
       // Sintaxe: [regex no path relativo, "nome-do-doc.md"]
       //
       // Exemplos:
@@ -110,7 +110,7 @@ cat <<JSON
   "continue": true,
   "hookSpecificOutput": {
     "hookEventName": "PostToolUse",
-    "additionalContext": "doc afetado: docs/project_map/$DOC — revisar antes de fechar (skill sync-project-map). Detalhe do workflow na própria skill, não repetido aqui."
+    "additionalContext": "doc afetado: .claude/docs/project_map/$DOC — revisar antes de fechar (skill sync-project-map). Detalhe do workflow na própria skill, não repetido aqui."
   }
 }
 JSON

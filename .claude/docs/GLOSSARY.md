@@ -16,7 +16,7 @@ sinônimos. Quando ler "X" em prompt ou código, consulta aqui.
 ## Princípios
 
 - **1-2 frases por termo.** Mais que isso vai pra doc específico
-  (ex.: `docs/project_map/X.md`).
+  (ex.: `.claude/docs/project_map/X.md`).
 - **`file:line` pra exemplo canônico** de uso. Sem isso o termo vira
   vago.
 - **Sinônimos viram linha própria** com cross-link pro canonical.
@@ -38,4 +38,4 @@ sinônimos. Quando ler "X" em prompt ou código, consulta aqui.
 
 - Termo usado uma vez e que dificilmente vai voltar.
 - Conceito que só existe num arquivo (o comentário no fonte basta).
-- Algo já documentado em `docs/project_map/`.
+- Algo já documentado em `.claude/docs/project_map/`.

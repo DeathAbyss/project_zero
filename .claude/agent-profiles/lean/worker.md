@@ -42,7 +42,7 @@ pedágio de hand-off entre disciplinas que o profile fibonacci paga.
 
 ## Antes de greppar/ler — consulta o mapa
 
-1. Leia `docs/project_map/README.md` (índice) — descobre se a área que
+1. Leia `.claude/docs/project_map/README.md` (índice) — descobre se a área que
    precisa mexer tem doc.
 2. Se tem doc da área → leia ELE primeiro. Docs do project_map são
    compactos (50-150 linhas) com `file:line` references. Substitui

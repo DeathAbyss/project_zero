@@ -42,16 +42,16 @@ echo " validate.sh — sanidade do setup"
 echo "═══════════════════════════════════════════════════════"
 echo
 echo "[Estrutura básica]"
-check "docs/CONVENTIONS.md existe" \
-  "test -f docs/CONVENTIONS.md"
-check "docs/project_map/README.md existe" \
-  "test -f docs/project_map/README.md"
-check "docs/project_map/_GUIDE.md existe" \
-  "test -f docs/project_map/_GUIDE.md"
+check ".claude/docs/CONVENTIONS.md existe" \
+  "test -f .claude/docs/CONVENTIONS.md"
+check ".claude/docs/project_map/README.md existe" \
+  "test -f .claude/docs/project_map/README.md"
+check ".claude/docs/project_map/_GUIDE.md existe" \
+  "test -f .claude/docs/project_map/_GUIDE.md"
 check "SECURITY_NOTES.md existe" \
   "test -f SECURITY_NOTES.md"
-check "docs/GLOSSARY.md existe" \
-  "test -f docs/GLOSSARY.md"
+check ".claude/docs/GLOSSARY.md existe" \
+  "test -f .claude/docs/GLOSSARY.md"
 
 echo
 echo "[Arquivo de instruções do agente]"
@@ -96,8 +96,8 @@ warn ".gitignore cobre node_modules/ (skip se não JS)" \
 
 echo
 echo "[Catálogo project_map populado]"
-warn "Pelo menos 1 doc em docs/project_map/ além do README/GUIDE" \
-  "[[ \$(ls docs/project_map/*.md 2>/dev/null | grep -Ev '(README|_GUIDE)\\.md\$' | wc -l) -gt 0 ]]"
+warn "Pelo menos 1 doc em .claude/docs/project_map/ além do README/GUIDE" \
+  "[[ \$(ls .claude/docs/project_map/*.md 2>/dev/null | grep -Ev '(README|_GUIDE)\\.md\$' | wc -l) -gt 0 ]]"
 warn "Hook tem regras populadas (não só comentário)" \
   "grep -Eq '^[[:space:]]*\\[/' .claude/hooks/check-sync-project-map.sh"
 

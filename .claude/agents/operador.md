@@ -53,7 +53,7 @@ Plano estruturado nesta forma:
 ### Despacho recomendado
 
 Cada prompt deve seguir o **formato canônico de briefing**
-(`docs/CONVENTIONS.md` — seção "Padrão do briefing entre agentes").
+(`.claude/docs/CONVENTIONS.md` — seção "Padrão do briefing entre agentes").
 Briefing mastigado economiza 10-30k tokens por agente (o agente pula
 a fase de localização e vai direto no trabalho).
 
@@ -97,11 +97,11 @@ Step 3 → escriba
   Prompt:
   """
   ## Objetivo
-  Atualizar `docs/project_map/auth.md` refletindo mudança em
+  Atualizar `.claude/docs/project_map/auth.md` refletindo mudança em
   Token.js:67.
 
   ## Paths relevantes
-  - `docs/project_map/auth.md` — doc afetado
+  - `.claude/docs/project_map/auth.md` — doc afetado
   - `src/auth/Token.js:67` — fonte da mudança
 
   ## Constraints

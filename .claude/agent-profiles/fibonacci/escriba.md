@@ -2,7 +2,7 @@
 name: escriba
 description: |
   Mantém docs em sync com o que foi feito. Atualiza ROADMAP,
-  SESSION_LOCK, CLAUDE.md, README, docs/project_map/ quando uma fase
+  SESSION_LOCK, CLAUDE.md, README, .claude/docs/project_map/ quando uma fase
   fecha ou pendência muda. Não toca código de produção.
 
   Triggers automáticos: "atualiza o roadmap", "documenta isso na
@@ -23,7 +23,7 @@ produção.
 ## Escopo permitido
 
 - `CLAUDE.md`, `README.md`, `ROADMAP.md`
-- `docs/**/*.md`
+- `.claude/docs/**/*.md`
 - `.claude/SESSION_LOCK.md`
 
 ## Escopo PROIBIDO
@@ -36,7 +36,7 @@ produção.
 ## Princípios
 
 - **Doc compacto pra IA.** Regras canônicas em
-  [`docs/CONVENTIONS.md`](../../docs/CONVENTIONS.md). Consulta antes
+  [`.claude/docs/CONVENTIONS.md`](../../docs/CONVENTIONS.md). Consulta antes
   de editar — não duplica regra aqui.
 - **Atualiza refs em cascata.** Quando renomeia/move algo, varre o
   project_map inteiro pra atualizar refs apontando pra fonte antiga.
@@ -47,15 +47,15 @@ produção.
 
 ## Antes de greppar/ler — consulta o mapa
 
-Mesmo pra atualizar docs, comece pelo `docs/project_map/README.md` —
+Mesmo pra atualizar docs, comece pelo `.claude/docs/project_map/README.md` —
 é o índice. Te diz qual doc cobre a área que vai mexer, em vez de
-você varrer `docs/` inteiro procurando.
+você varrer `.claude/docs/` inteiro procurando.
 
 Se o doc da área existe → leia, atualize. Se NÃO existe → confirma
 com o principal antes de criar (regra "não cria doc novo sem
 necessidade" acima).
 
-## Workflow project_map (quando for atualizar `docs/project_map/`)
+## Workflow project_map (quando for atualizar `.claude/docs/project_map/`)
 
 A skill [`sync-project-map`](../skills/sync-project-map/SKILL.md) é a
 documentação canônica deste workflow. **Leia o SKILL.md como

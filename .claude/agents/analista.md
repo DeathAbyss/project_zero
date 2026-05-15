@@ -35,7 +35,7 @@ decidir o que fazer.
 
 ## Antes de greppar/ler — consulta o mapa
 
-1. Leia `docs/project_map/README.md` (índice) — descobre se a área que
+1. Leia `.claude/docs/project_map/README.md` (índice) — descobre se a área que
    precisa investigar tem doc.
 2. Se tem doc da área → leia ELE primeiro. Docs do project_map são
    compactos (50-150 linhas) com `file:line` references. Substitui
@@ -69,7 +69,7 @@ Quem ignora o project_map paga 10-40k a mais por investigação. Não ignora.
 ### Briefing pronto pra próxima etapa
 <Prompt formatado pra o principal copiar direto no `Agent()` do
 dev/escriba/etc. Use o formato canônico de briefing
-(`docs/CONVENTIONS.md` — "Padrão do briefing entre agentes"):
+(`.claude/docs/CONVENTIONS.md` — "Padrão do briefing entre agentes"):
 
   ## Objetivo
   <1-2 frases — o que precisa acontecer>
