@@ -10,7 +10,7 @@
 >
 > Atalho direto: `bash project_zero/setup.sh` (assume Claude Code) ou
 > `bash project_zero/setup.sh --agent cursor` pra outros agentes.
-> Depois, `bash validate.sh` confere se tudo ficou em pé.
+> Depois, `bash .claude/scripts/validate.sh` confere se tudo ficou em pé.
 >
 > Windows: usar Git Bash (já vem com Git for Windows).
 >
@@ -286,21 +286,23 @@ por que ir junto pro projeto destino. **Pule este arquivo na cópia.**
 project_zero/
 ├── README.md                          # você está aqui — manual de uso
 ├── CLAUDE.template.md                 # esqueleto do CLAUDE.md
-├── SECURITY_NOTES.md                  # arquivos/padrões sensíveis a NÃO tocar
 ├── .gitignore.template                # defaults sensatos (secrets, build, deps)
-├── setup.sh                           # aplica o template num destino (Passo 5 trivial)
-├── validate.sh                        # smoke test pós-setup
-├── update_template.sh                 # compara template ↔ destino, sem aplicar
+├── setup.sh                           # aplica o template num destino (entry point user)
+├── update_template.sh                 # compara template ↔ destino (não vai pro destino)
 ├── .claude/
 │   ├── docs/                          # docs de IA — TUDO aqui, NUNCA solto em /docs
 │   │   ├── CONVENTIONS.md             # single source of truth de regras
 │   │   ├── GLOSSARY.md                # vocabulário do projeto (cresce orgânico)
+│   │   ├── SECURITY_NOTES.md          # arquivos/padrões sensíveis a NÃO tocar
 │   │   ├── decisions/
 │   │   │   ├── README.md              # índice de ADRs leves
 │   │   │   └── _TEMPLATE.md           # esqueleto pra criar decisão nova
 │   │   └── project_map/
 │   │       ├── README.template.md     # índice do project_map (canônico)
 │   │       └── _GUIDE.md              # como escrever docs compactos pra IA
+│   ├── scripts/                       # ferramentas do agente — copiadas pro destino
+│   │   ├── validate.sh                # smoke test pós-setup (self-locate via BASH_SOURCE)
+│   │   └── cost-report.py             # relatório de tokens da sessão
 │   ├── skills/
 │   │   ├── roadmap-review/SKILL.md              # sparring partner reativo + proativo
 │   │   ├── dry-pass/SKILL.md                    # caça duplicação de dados/lógica

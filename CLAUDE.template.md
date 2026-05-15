@@ -100,7 +100,7 @@ Testes (se houver):
    Plano vive em `TodoWrite` ou na conversa. Arquivo intermediário
    vira lixo na próxima sessão e custa Read futuro.
 4. **Não ler / editar / commitar arquivos sensíveis.** Consulte
-   [`SECURITY_NOTES.md`](SECURITY_NOTES.md) na raiz — define padrões
+   [`.claude/docs/SECURITY_NOTES.md`](.claude/docs/SECURITY_NOTES.md) — define padrões
    (`.env`, chaves, credenciais, secrets) e política do que NÃO tocar.
    Em dúvida, pergunta antes de ler.
 5. **(Convenção do projeto — preencher)**. Ex.: "Sem dependências

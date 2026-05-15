@@ -20,8 +20,10 @@ if [[ "$PROJECT_ZERO" == "$DEST" ]]; then
 fi
 
 # Arquivos do template que valem comparar (skip de placeholders).
+# Assume destino usando namespace .claude/. Pra outros agentes, paths
+# divergem e o script reportaria falsos faltantes — futuro: aceitar --agent.
 FILES=(
-  "SECURITY_NOTES.md"
+  ".claude/docs/SECURITY_NOTES.md"
   ".claude/docs/CONVENTIONS.md"
   ".claude/docs/GLOSSARY.md"
   ".claude/docs/decisions/README.md"
@@ -42,11 +44,11 @@ FILES=(
   ".claude/hooks/check-sync-project-map.sh"
   ".claude/hooks/check-session-lock.sh"
   ".claude/hooks/on-stop-check.sh"
-  "validate.sh"
-  "update_template.sh"
+  ".claude/scripts/validate.sh"
+  ".claude/scripts/cost-report.py"
 )
-# Nota: setup.sh NÃO entra aqui — é a ferramenta de aplicar o template,
-# fica só no project_zero. Validate/update_template ficam no destino.
+# Nota: setup.sh e update_template.sh NÃO entram aqui — são tooling
+# do project_zero source, não vão pro destino.
 
 DIFFERS=()
 MISSING=()

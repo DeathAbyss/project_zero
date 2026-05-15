@@ -145,10 +145,9 @@ copy_if_absent() {
 echo
 echo "[1/6] Copiando arquivos sem placeholder..."
 
-# Arquivo de raiz (sempre copia)
-copy_if_absent "$PROJECT_ZERO/SECURITY_NOTES.md"               "$DEST/SECURITY_NOTES.md"
-
-# Docs de IA — sempre vão pra $AI_NS/docs/ (NUNCA solto na raiz)
+# Docs de IA — TUDO em $AI_NS/docs/ (NUNCA solto na raiz)
+# Inclui SECURITY_NOTES (era root, agora doc de IA)
+copy_if_absent "$PROJECT_ZERO/.claude/docs/SECURITY_NOTES.md"       "$DEST/$AI_NS/docs/SECURITY_NOTES.md"
 copy_if_absent "$PROJECT_ZERO/.claude/docs/CONVENTIONS.md"          "$DEST/$AI_NS/docs/CONVENTIONS.md"
 copy_if_absent "$PROJECT_ZERO/.claude/docs/GLOSSARY.md"             "$DEST/$AI_NS/docs/GLOSSARY.md"
 copy_if_absent "$PROJECT_ZERO/.claude/docs/decisions/README.md"     "$DEST/$AI_NS/docs/decisions/README.md"
@@ -218,10 +217,20 @@ else
 fi
 
 echo
-echo "[5/6] Copiando scripts auxiliares..."
+echo "[5/6] Copiando scripts auxiliares pra $AI_NS/scripts/..."
 
-copy_if_absent "$PROJECT_ZERO/validate.sh"        "$DEST/validate.sh"
-copy_if_absent "$PROJECT_ZERO/update_template.sh" "$DEST/update_template.sh"
+# validate.sh: smoke test do destino, vai pro destino
+copy_if_absent "$PROJECT_ZERO/.claude/scripts/validate.sh"     "$DEST/$AI_NS/scripts/validate.sh"
+# cost-report.py: ferramenta de feedback de tokens — Claude Code ONLY
+# (lê transcripts de ~/.claude/projects/, que outros agentes não geram).
+if [[ "$AI_NS" == ".claude" ]]; then
+  copy_if_absent "$PROJECT_ZERO/.claude/scripts/cost-report.py"  "$DEST/$AI_NS/scripts/cost-report.py"
+else
+  echo "  · skip cost-report.py (Claude Code-específico — agente $AGENT não usa)"
+fi
+# Nota: update_template.sh NÃO é copiado — fica só no project_zero/ source.
+# Pra atualizar destino com versão mais nova do template, user mantém
+# clone do project_zero e roda: bash <path>/update_template.sh <dest>
 
 echo
 echo "[6/6] Reescrevendo refs internas .claude/ → $AI_NS/ (se necessário)..."
@@ -235,7 +244,7 @@ if [[ "$AI_NS" != ".claude" ]]; then
   find "$DEST/$AI_NS" -type f \( -name '*.md' -o -name '*.sh' -o -name '*.json' \) \
     -exec sed -i '' "s|\.claude/|${AI_NS_ESC}/|g" {} \; 2>/dev/null  # macOS fallback
   echo "  ✓ Refs reescritas em $DEST/$AI_NS/"
-  echo "  ✓ Refs em validate.sh / SECURITY_NOTES.md / .gitignore na raiz NÃO foram tocadas — ajuste manual se necessário."
+  echo "  ✓ Refs em .gitignore na raiz NÃO foram tocadas — ajuste manual se necessário."
 else
   echo "  · skip (namespace é .claude, refs já corretas)."
 fi
@@ -257,7 +266,7 @@ case "$AGENT" in
   generic|other|ai)   echo "       AGENTS.md" ;;
 esac
 echo "     substituindo placeholders ({{PROJECT_NAME}}, {{STACK}}, ...)"
-echo "  2. Mapear o projeto destino (Passo 6 do README — OBRIGATÓRIO)"
-echo "  3. Rodar: bash validate.sh"
+echo "  2. Mapear o projeto destino — orgânico, não bloqueia o uso"
+echo "  3. Rodar: bash $AI_NS/scripts/validate.sh"
 echo
-echo "Veja project_zero/README.md (Passos 1-8) pro fluxo completo."
+echo "Veja project_zero/README.md pro fluxo completo."
