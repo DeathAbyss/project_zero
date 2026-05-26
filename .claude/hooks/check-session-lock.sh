@@ -16,7 +16,7 @@
 #   ### Sessão X — <timestamp> — <user>
 #   **Status**: ativa
 #   **Arquivos reservados**:
-#   - `path/to/foo.js`
+#   - `path/to/file.ext`
 #   - `src/auth/*`
 
 INPUT=$(cat)

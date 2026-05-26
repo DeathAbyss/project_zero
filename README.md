@@ -18,7 +18,7 @@
 
 Pasta-ponte que carrega para um projeto novo o conjunto mínimo de
 **docs, skills, hooks e padrões de coordenação** que valeu a pena
-extrair de projetos anteriores (referência inicial: IsoDead TD).
+extrair de projetos anteriores.
 
 Objetivo: **não começar do zero**. Quando abrir um projeto novo, copie
 esta pasta pra raiz dele, abra uma sessão com o agente e mande
@@ -294,6 +294,10 @@ project_zero/
 │   │   ├── CONVENTIONS.md             # single source of truth de regras
 │   │   ├── GLOSSARY.md                # vocabulário do projeto (cresce orgânico)
 │   │   ├── SECURITY_NOTES.md          # arquivos/padrões sensíveis a NÃO tocar
+│   │   ├── 01-git.md                  # git/PR/branch protegida
+│   │   ├── 02-token-efficiency.md     # princípios + anti-padrões de token
+│   │   ├── 03-multiagent.md           # quando despachar sub-agente (Fibonacci)
+│   │   ├── 04-task-closure.md         # checklist antes de declarar concluído
 │   │   ├── decisions/
 │   │   │   ├── README.md              # índice de ADRs leves
 │   │   │   └── _TEMPLATE.md           # esqueleto pra criar decisão nova
@@ -311,7 +315,9 @@ project_zero/
 │   │   ├── code-review-and-quality/SKILL.md     # review multi-axis antes de merge
 │   │   ├── deprecation-and-migration/SKILL.md   # remoção segura de código / API / feature
 │   │   ├── browser-testing-with-devtools/SKILL.md  # testes em browser (Chrome DevTools MCP)
-│   │   └── task-retrospect/SKILL.md             # fechamento consciente de task
+│   │   ├── task-retrospect/SKILL.md             # fechamento consciente de task
+│   │   ├── cost-report/SKILL.md                 # relatório de tokens da sessão
+│   │   └── switch-agent-profile/SKILL.md        # troca/lista/cria profiles de agentes
 │   ├── agents/
 │   │   ├── operador.md                # planejador Opus (demanda multi-papel)
 │   │   ├── dev.md                     # implementador

@@ -61,11 +61,11 @@ Step 1 → analista
   Prompt:
   """
   ## Objetivo
-  Confirma se Y é validado antes de Z no fluxo de auth.
+  Confirma se Y é validado antes de Z no fluxo de autenticação.
 
   ## Paths relevantes
-  - `src/auth/Token.js:42-80` — função de validação
-  - `src/middleware/auth.js` — entry point
+  - `src/auth/token.ext:42-80` — função de validação
+  - `src/middleware/auth.ext` — entry point
 
   ## Constraints
   - Read-only. Não modificar nenhum arquivo.
@@ -79,14 +79,14 @@ Step 2 → dev
   Prompt:
   """
   ## Objetivo
-  Trocar validateSync por validateAsync em Token.js.
+  Trocar a chamada síncrona por assíncrona em `token.ext`.
 
   ## Paths relevantes
-  - `src/auth/Token.js:67` — chamada a substituir
-  - `src/auth/Token.js:120` — Token.refresh() depende disso
+  - `src/auth/token.ext:67` — chamada a substituir
+  - `src/auth/token.ext:120` — função refresh depende disso
 
   ## Constraints
-  - Respeitar contrato de Token.refresh() em :120.
+  - Respeitar contrato do refresh em :120.
   - Sem alterar API pública.
 
   ## Saída esperada
@@ -98,11 +98,11 @@ Step 3 → escriba
   """
   ## Objetivo
   Atualizar `.claude/docs/project_map/auth.md` refletindo mudança em
-  Token.js:67.
+  `token.ext:67`.
 
   ## Paths relevantes
   - `.claude/docs/project_map/auth.md` — doc afetado
-  - `src/auth/Token.js:67` — fonte da mudança
+  - `src/auth/token.ext:67` — fonte da mudança
 
   ## Constraints
   - Manter formato compacto (CONVENTIONS.md).

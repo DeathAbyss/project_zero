@@ -66,8 +66,8 @@ Pra cada arquivo modificado, marca os atributos abaixo:
 | **memory** | Surgiu insight surpreendente durante a task? Padrão repetido? Gotcha? Decisão não-óbvia que vale traço durável? |
 | **ADR** | Decisão arquitetural foi tomada (escolha de lib, padrão, tradeoff)? Vale registrar em `.claude/docs/decisions/`? |
 | **deps** | Adicionou dep nova? Removeu? Bumped versão? Implicações de licença/security? |
-| **i18n** | Adicionou string visível ao usuário? Cobre todos os idiomas suportados pelo projeto? |
-| **version bump** | Service worker / manifest.json / package.json version exige update por convenção do projeto? |
+| **i18n** | Se o projeto tem i18n: adicionou string visível? Cobre todos os idiomas suportados? |
+| **version bump** | Algum manifesto do projeto (`package.json`, `pom.xml`, `Cargo.toml`, `pyproject.toml`, `go.mod`, manifest de PWA, etc.) tem version field que a mudança exige bumpar? |
 | **CLAUDE.md** | Surgiu gotcha novo / convenção implícita / regra que outra IA repetiria errado? |
 | **GLOSSARY** | Introduziu termo de domínio novo que vale registrar? |
 | **SECURITY_NOTES** | Tocou arquivo sensível que merece registro? Adicionou padrão a evitar? |
@@ -80,12 +80,12 @@ Formato:
 ## Ações de fechamento
 
 ### Prioridade alta (faz agora, baixo custo, alto valor)
-- [ ] project_map: .claude/docs/project_map/auth.md cita Token.js:67, mudou pra :74
-- [ ] deps: jsonwebtoken adicionado em package.json — registrar no README?
+- [ ] project_map: .claude/docs/project_map/auth.md cita `token.ext:67`, mudou pra :74
+- [ ] deps: lib X adicionada no manifesto — registrar no README?
 
 ### Prioridade média (vale considerar antes de commitar)
-- [ ] memory: durante a task descobri que httpOnly cookie resolve X (gotcha vale durar)
-- [ ] CLAUDE.md: convenção "prefix `validateAsync` pra funções async" emergiu — documentar?
+- [ ] memory: durante a task descobri que abordagem Y resolve a classe de bugs Z (gotcha vale durar)
+- [ ] CLAUDE.md: convenção "prefixo `async` pra funções não-bloqueantes" emergiu — documentar?
 
 ### Prioridade baixa (geralmente pode pular ou deixar pra depois)
 - [ ] i18n: "Login" adicionada em pt-BR.json — verificar en-US.json

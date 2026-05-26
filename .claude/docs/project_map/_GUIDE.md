@@ -32,20 +32,20 @@ não justifique doc próprio — anexar a outro.
 
 | Arquivo | Função |
 |---|---|
-| [foo.js](relative/path/foo.js) | Faz X |
-| [bar.js](relative/path/bar.js:42) | Faz Y (entry em bar.js:42) |
+| [parser.ext](relative/path/parser.ext) | Faz X |
+| [handler.ext](relative/path/handler.ext:42) | Faz Y (entry em :42) |
 
 ## Símbolos exportados / API pública
 
 | Símbolo | Onde | Uso |
 |---|---|---|
-| `computeX()` | [foo.js:55](relative/path/foo.js:55) | Chamada pelos consumidores Y e Z |
+| `computeX()` | [parser.ext:55](relative/path/parser.ext:55) | Chamada pelos consumidores Y e Z |
 
 ## Valores numéricos relevantes
 
 | Constante | Valor | Onde |
 |---|---|---|
-| `MAX_THINGS` | 8 | [foo.js:12](relative/path/foo.js:12) |
+| `MAX_RETRIES` | 5 | [parser.ext:12](relative/path/parser.ext:12) |
 
 ## Fluxo principal
 
@@ -73,11 +73,11 @@ sem prosa longa, cross-link > duplicar.
 
 Nome curto, em inglês, lowercase, descritivo:
 
-- ✅ `towers.md`, `enemies.md`, `auth.md`, `routing.md`
-- ❌ `tower-system-explained.md`, `THE_AUTH_FLOW.md`
+- ✅ `auth.md`, `routing.md`, `payments.md`, `cache.md`
+- ❌ `auth-system-explained.md`, `THE_AUTH_FLOW.md`
 
-Numerados quando há vários do mesmo tipo (mecânicas, módulos
-plug-and-play): `mechanics_1.md`, `mechanics_2.md`.
+Numerados quando há vários do mesmo tipo (módulos plug-and-play,
+domínios paralelos): `domain_1.md`, `domain_2.md`.
 
 ## Como manter
 
@@ -94,6 +94,6 @@ edit em arquivo coberto pelo catálogo e relata drift. Veja
 ## Quando NÃO criar doc
 
 - Arquivo de configuração lido 1× e nunca mais
-- Helper trivial (`utils/format.js` 30 linhas — vai numa linha de
+- Helper trivial (`utils/format.ext` 30 linhas — vai numa linha de
   `utils.md`, não doc próprio)
 - Coisa que muda toda semana (drift garantido > valor do doc)

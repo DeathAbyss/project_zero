@@ -20,11 +20,11 @@ sinônimos. Quando ler "X" em prompt ou código, consulta aqui.
 - **`file:line` pra exemplo canônico** de uso. Sem isso o termo vira
   vago.
 - **Sinônimos viram linha própria** com cross-link pro canonical.
-  Ex.: "minion" → ver "enemy".
+  Ex.: "cliente" → ver "customer".
 - **Termos óbvios pra qualquer dev** (HTTP, JSON, REST, etc.) NÃO
   entram. Só termos com significado específico DESTE projeto.
-- **Sigla → expandida.** "TD" sozinho não diz nada; "TD (Tower
-  Defense)" sim.
+- **Sigla → expandida.** Sigla sozinha não diz nada; "WS (Workspace)"
+  ou "PR (Pull Request)" sim.
 
 ## Quando atualizar
 

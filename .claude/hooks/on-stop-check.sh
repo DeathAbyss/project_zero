@@ -37,7 +37,7 @@ cat <<'JSON'
   "continue": true,
   "hookSpecificOutput": {
     "hookEventName": "Stop",
-    "additionalContext": "Working tree tem mudanças. Antes de declarar a task fechada, considere as propagações que costumam escapar:\n- memory: algo surpreendente vale traço durável? (memory/_PATTERNS.md)\n- project_map: doc da área afetada precisa update? (skill sync-project-map)\n- ADR: decisão arquitetural não-óbvia? (.claude/docs/decisions/)\n- deps: package.json / requirements.txt / Cargo.toml mudou?\n- i18n: string visível adicionada cobre todos os idiomas?\n- version bump: service worker / manifest / package.json version?\n\nPra varredura completa: skill task-retrospect.\nIgnore se nada se aplica. Reset throttle: rm .claude/tmp/stop_reminder_shown"
+    "additionalContext": "Working tree tem mudanças. Antes de declarar a task fechada, considere as propagações que costumam escapar:\n- memory: algo surpreendente vale traço durável? (memory/_PATTERNS.md)\n- project_map: doc da área afetada precisa update? (skill sync-project-map)\n- ADR: decisão arquitetural não-óbvia? (.claude/docs/decisions/)\n- deps: manifesto de dependências (package.json / pom.xml / Cargo.toml / requirements.txt / go.mod / etc.) mudou?\n- i18n: se o projeto tem i18n, string visível adicionada cobre todos os idiomas?\n- version bump: se o projeto tem version field em algum manifesto, mudança significativa pede bump?\n\nPra varredura completa: skill task-retrospect.\nIgnore se nada se aplica. Reset throttle: rm .claude/tmp/stop_reminder_shown"
   }
 }
 JSON

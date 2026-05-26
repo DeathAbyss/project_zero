@@ -49,19 +49,20 @@ reflexo. Rodar quando:
 
 Mesmo valor literal aparece em N arquivos sem constante exportada.
 
-```js
-// BAD — 64 e 32 espalhados
-ctx.fillRect(x, y, 64, 32);
-const cx = (gx - gy) * 32;
+```text
+// BAD — 30 e 5000 espalhados em vários arquivos
+if (retries < 5) { sleep(30); ... }
+const timeout = 5000;
+const maxAttempts = 5;
 
 // GOOD — uma constante central
-import { TILE_W, TILE_H } from './constants.js';
+import { MAX_RETRIES, RETRY_DELAY_MS } from "<constants module>"
 ```
 
 Como pegar:
-- `Grep` por valores numéricos suspeitos (coordenadas, percentages,
-  durations) que aparecem em 3+ arquivos
-- Cores hex (`#4ecdc4` etc) que repetem viram tema/palette
+- `Grep` por valores numéricos suspeitos (timeouts, limites, retries,
+  percentages) que aparecem em 3+ arquivos
+- Strings/cores/IDs que repetem viram constante de domínio
 - Strings de IDs que aparecem em código fora do módulo de dados viram
   constantes
 
@@ -111,12 +112,12 @@ Como pegar:
 Valores inline em arquivos de runtime quando deveriam vir de uma
 tabela canonical.
 
-```js
-// BAD — wave count hardcoded
-if (wave === 30) victory();
+```text
+// BAD — limite hardcoded espalhado
+if (attempts === 30) lockAccount();
 
 // GOOD — vem da config
-if (wave === this.config.waveCount) victory();
+if (attempts === config.maxAttempts) lockAccount();
 ```
 
 Como pegar:
@@ -137,13 +138,13 @@ Como pegar:
 
 Mesma fórmula expressa em 2+ lugares.
 
-```js
-// BAD — fórmula em 3 lugares
-const score = goldSpent + dur;
-const total = entry.goldSpent + entry.durationSec;
+```text
+// BAD — fórmula repetida em 3 lugares
+const total = amount * (1 + taxRate) - discount;
+const subtotal = entry.amount * (1 + entry.taxRate) - entry.discount;
 
 // GOOD — função em utils
-import { computeScore } from './utils/score.js';
+import { computeTotal } from "<utils module>";
 ```
 
 Como pegar:

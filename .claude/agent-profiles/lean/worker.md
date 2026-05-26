@@ -80,8 +80,8 @@ Modo **investigação** (sem edição):
 ## Achados
 
 ### <Tópico A>
-- <fato 1> — evidência: [foo.js:42](path/foo.js:42)
-- <fato 2> — evidência: [bar.js:88](path/bar.js:88)
+- <fato 1> — evidência: [file_a.ext:42](path/file_a.ext:42)
+- <fato 2> — evidência: [file_b.ext:88](path/file_b.ext:88)
 
 ### Hipóteses
 - <hipótese A>: evidência <forte|média|fraca> — <por quê>

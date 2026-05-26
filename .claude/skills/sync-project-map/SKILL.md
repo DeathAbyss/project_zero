@@ -59,10 +59,10 @@ otimizados pra IA vira arquivo morto em poucas semanas.
 |---|---|
 | _(vazio — popule conforme criar docs)_ | _(doc.md)_ |
 
-> **Exemplo (apagar quando popular)**:
+> **Exemplo (apagar quando popular — adapte a extensão à stack)**:
 >
-> | `src/core/*.js` | `core.md` |
-> | `src/api/auth.js` | `auth.md` |
+> | `src/core/*` | `core.md` |
+> | `src/api/auth.*` | `auth.md` |
 > | `src/db/migrations/*.sql` | `database.md` |
 
 ## Workflow
@@ -86,7 +86,7 @@ Pra cada par `(arquivo, doc)`:
 Checks na ordem:
 
 **a. Refs `file:line` válidos?**
-- Doc cita `[arquivo.js:N](path)` — o conteúdo da linha N ainda bate
+- Doc cita `[arquivo.ext:N](path)` — o conteúdo da linha N ainda bate
   com o que o doc diz?
 - Função / classe / const ainda existe naquele número de linha (±5)?
 

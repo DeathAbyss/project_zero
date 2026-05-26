@@ -64,11 +64,40 @@ check "$NS/docs/SECURITY_NOTES.md existe" \
   "test -f $NS/docs/SECURITY_NOTES.md"
 check "$NS/docs/GLOSSARY.md existe" \
   "test -f $NS/docs/GLOSSARY.md"
+check "$NS/docs/01-git.md existe" \
+  "test -f $NS/docs/01-git.md"
+check "$NS/docs/02-token-efficiency.md existe" \
+  "test -f $NS/docs/02-token-efficiency.md"
+check "$NS/docs/03-multiagent.md existe" \
+  "test -f $NS/docs/03-multiagent.md"
+check "$NS/docs/04-task-closure.md existe" \
+  "test -f $NS/docs/04-task-closure.md"
 
 echo
 echo "[Arquivo de instruções do agente]"
 warn "Algum arquivo de instruções existe (CLAUDE.md / .cursorrules / etc.)" \
   "test -f CLAUDE.md || test -f .cursorrules || test -d .cursor/rules || test -f .clinerules || test -f .windsurfrules || test -f CONVENTIONS.md || test -f .github/copilot-instructions.md || test -f AGENTS.md"
+
+echo
+echo "[Placeholders preenchidos]"
+# Confere se o arquivo de instruções do agente não ficou com placeholders
+# do template sobrando. {{...}} = FAIL (placeholder literal não substituído).
+# "preencher" / "edit conforme descobrir" = WARN (instrução do template
+# que o instalador esqueceu de resolver, mas pode ser texto legítimo).
+INSTR_FILES=""
+for cand in CLAUDE.md .cursorrules .clinerules .windsurfrules .github/copilot-instructions.md AGENTS.md; do
+  [[ -f "$cand" ]] && INSTR_FILES="$INSTR_FILES $cand"
+done
+if [[ -n "$INSTR_FILES" ]]; then
+  for f in $INSTR_FILES; do
+    check "$f sem placeholders {{...}} sobrando" \
+      "! grep -Eq '\\{\\{[A-Z_]+\\}\\}' '$f'"
+    warn "$f sem instruções 'preencher' / 'edit conforme' sobrando" \
+      "! grep -Eqi '(preencher|edit conforme descobrir|preencher ou remover)' '$f'"
+  done
+else
+  echo "  · skip (nenhum arquivo de instruções pra checar)"
+fi
 
 echo
 echo "[$NS — features do agente]"

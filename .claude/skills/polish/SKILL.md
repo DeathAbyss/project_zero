@@ -76,7 +76,7 @@ Helpers puros (sem dep de state) que aparecem em N lugares e
 deveriam viver num módulo central.
 
 Categorias típicas:
-- Formatação numérica: `formatGold`, `formatNumber`, `formatPercent`
+- Formatação numérica: `formatCurrency`, `formatNumber`, `formatPercent`
 - Formatação de tempo: `formatDuration`, `formatRelative`, `formatDate`
 - Formatação de texto: `truncate`, `capitalize`, `pluralize`
 - Cores e paleta: `hexToRgb`, `lightenColor`, `mixColor`
@@ -100,9 +100,9 @@ extrair quando o esqueleto é genuinamente o mesmo.
 Acima de 800 vira sinal forte pra dividir, mas sem refator forçado —
 flagar e analisar.
 
-Como pegar:
+Como pegar (adapte o glob à extensão da stack):
 ```bash
-find <SRC_ROOT> -name "*.js" -exec wc -l {} + | sort -rn | head -20
+find <SRC_ROOT> -name "*.<ext>" -exec wc -l {} + | sort -rn | head -20
 ```
 
 Para cada arquivo grande, identificar **limites lógicos naturais**:
@@ -190,11 +190,12 @@ Não forçar consolidação dessas.
 
 ### 11. Imports não usados
 
-`import { foo, bar } from './x.js'` quando `bar` nunca aparece no
-arquivo. Suja diff, infla bundle.
+Import/use declaration referenciando símbolo que nunca aparece no
+arquivo. Suja diff, infla bundle (em stacks que fazem bundle).
 
-Cuidado: side-effect imports (`import './foo.js'`) sem nome são
-intencionais — não remover.
+Cuidado: side-effect imports (sem nome, só pra executar o módulo) e
+imports de tipos usados só em anotações de tipo são intencionais —
+não remover.
 
 ### 12. Funções > 100 linhas
 
@@ -244,7 +245,8 @@ entende o que faz? Se sim, comentário é ruído.
 
 Cuidado:
 - Comentário que documenta gotcha histórico É valioso — preservar.
-- JSDoc com `@param`/`@returns` em API pública é OK.
+- Doc-comment estruturado (JSDoc / Javadoc / docstrings / KDoc) em API
+  pública com regra/comportamento não-óbvio é OK.
 
 ### 17. Docs stale ou duplicadas
 
@@ -291,7 +293,7 @@ Polish Pass — N achados em M categorias:
 🔴 ALTO IMPACTO (atacar primeiro)
 [1] Funções duplicadas
    - _formatDuration em 4 módulos
-     → consolidar em <SRC_ROOT>/utils/format.js
+     → consolidar em <SRC_ROOT>/utils/format.<ext>
      Risco: baixo (helper puro, easy migration)
 
 🟡 MÉDIO
@@ -318,10 +320,12 @@ implementa o fix do que ele autorizou.
 
 - **Uma consolidação por vez.** Nunca empacotar 5 refactors num
   commit só.
-- **Testar runtime após cada fix.** Pra mudanças que tocam UI/save/
-  fluxo crítico, rodar o projeto e validar comportamento. `node --check`
-  não pega ReferenceError em closure.
-- **Mexer em i18n = todos os idiomas.** Sem exceção.
+- **Testar runtime após cada fix.** Pra mudanças que tocam UI / persistência /
+  fluxo crítico, rodar o projeto e validar comportamento. Checagem
+  estática (linter/typecheck/`node --check`/equivalente da stack) NÃO
+  substitui execução — não pega erros que dependem de runtime.
+- **Se o projeto tem i18n e mexeu em string visível: todos os idiomas.**
+  Sem exceção.
 - **Não consolidar quando há intenção documentada.** Antes de mexer,
   ler comentários e MEMORY.
 - **Manter contratos públicos.** Preservar assinatura ou fazer

@@ -32,10 +32,10 @@ docs e agentes do template. Skills, agents e CLAUDE.md devem
 
 ### Naming
 
-- Lowercase, inglês, descritivo: `towers.md`, `auth.md`, `routing.md`.
-- Numerar quando há vários do mesmo tipo: `mechanics_1.md`,
-  `mechanics_2.md`.
-- Evitar `THE_AUTH_FLOW.md`, `tower-system-explained.md`.
+- Lowercase, inglês, descritivo: `auth.md`, `routing.md`, `payments.md`.
+- Numerar quando há vários do mesmo tipo: `domain_1.md`,
+  `domain_2.md`.
+- Evitar `THE_AUTH_FLOW.md`, `auth-system-explained.md`.
 
 ## Regras pra código
 
@@ -45,7 +45,8 @@ docs e agentes do template. Skills, agents e CLAUDE.md devem
 - Só quando o "porquê" é não-óbvio (gotcha histórico, workaround pra
   bug específico, hidden constraint, edge case surpreendente).
 - Se apagar não confunde ninguém, o comentário é ruído.
-- Sem emoji, sem ASCII art, sem JSDoc trivial, sem TODO órfão (sem
+- Sem emoji, sem ASCII art, sem doc-comment trivial (JSDoc/Javadoc/
+  docstring/KDoc que só repete o nome), sem TODO órfão (sem
   owner/condição), sem comentário-tag (`// fix bug`, `// added by X`).
 
 ### Estilo

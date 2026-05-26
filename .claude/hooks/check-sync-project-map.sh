@@ -30,10 +30,10 @@ RESULT=$(node -e '
       // Adicione regras conforme criar docs em .claude/docs/project_map/.
       // Sintaxe: [regex no path relativo, "nome-do-doc.md"]
       //
-      // Exemplos:
-      //   [/^src\/core\/.+\.js$/,           "core.md"],
-      //   [/^src\/api\/auth\.js$/,          "auth.md"],
-      //   [/^src\/db\/migrations\/.+\.sql$/,"database.md"],
+      // Exemplos (adapte a extensão à stack do projeto):
+      //   [/^src\/core\/.+\.(js|ts|py|go|java)$/, "core.md"],
+      //   [/^src\/api\/auth\.[a-z]+$/,            "auth.md"],
+      //   [/^src\/db\/migrations\/.+\.sql$/,      "database.md"],
       // ====================================================================
       const RULES = [
         // ---- POPULAR AQUI ----

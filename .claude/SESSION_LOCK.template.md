@@ -22,8 +22,8 @@ Toda sessão ativa adiciona uma seção como esta no topo da lista:
 
 **Escopo**: descrição em 1 linha do que está fazendo.
 **Arquivos reservados**:
-- `path/to/foo.js`
-- `path/to/bar.js`
+- `path/to/file_a.ext`
+- `path/to/file_b.ext`
 **Estimativa**: <quanto tempo>
 **Status**: ativa | pausada | concluída
 ```
