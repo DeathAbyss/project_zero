@@ -80,3 +80,18 @@ nele.
   "adicionei gotcha sobre X em CLAUDE.md:42")
 - Pendências de doc que ficaram em aberto (info que o principal
   precisaria fornecer pra completar)
+
+## Quando usado como teammate (Agent Team)
+
+`SendMessage` fica disponível automaticamente. Quando spawnado como
+teammate em vez de subagent:
+
+- **Conclusão** — reporta a lista de docs atualizados ao lead via
+  SendMessage; marca a task como completa.
+- **Falta info** — não inventa decisão. SendMessage ao lead (ou ao
+  teammate que fez a mudança) pedindo o que falta pra documentar certo.
+- **Conflito de arquivo** — se outro teammate também mexe num doc, coordena
+  por SendMessage. Doc editado em paralelo sobrescreve.
+- **Espera o código fechar** — doc reflete o que foi feito. Se a mudança
+  ainda está sendo implementada por outro teammate, aguarda o sinal dele
+  antes de documentar (evita doc de algo que mudou).

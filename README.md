@@ -298,6 +298,7 @@ project_zero/
 │   │   ├── 02-token-efficiency.md     # princípios + anti-padrões de token
 │   │   ├── 03-multiagent.md           # quando despachar sub-agente (Fibonacci)
 │   │   ├── 04-task-closure.md         # checklist antes de declarar concluído
+│   │   ├── 05-harness.md              # gate de verificação SDD + ciclo de fix
 │   │   ├── decisions/
 │   │   │   ├── README.md              # índice de ADRs leves
 │   │   │   └── _TEMPLATE.md           # esqueleto pra criar decisão nova
@@ -317,17 +318,29 @@ project_zero/
 │   │   ├── browser-testing-with-devtools/SKILL.md  # testes em browser (Chrome DevTools MCP)
 │   │   ├── task-retrospect/SKILL.md             # fechamento consciente de task
 │   │   ├── cost-report/SKILL.md                 # relatório de tokens da sessão
-│   │   └── switch-agent-profile/SKILL.md        # troca/lista/cria profiles de agentes
-│   ├── agents/
+│   │   ├── switch-agent-profile/SKILL.md        # troca/lista/cria profiles de agentes
+│   │   ├── sdd-explore/SKILL.md                 # explora pré-propose: coleta info, enquadra decisões (não decide)
+│   │   ├── sdd-propose/SKILL.md                 # abre change SDD (propose/design/tasks)
+│   │   └── sdd-archive/SKILL.md                 # fecha change: compacta recap + apaga dir
+│   ├── changes/                       # SDD próprio (recap-only) — fluxo de mudança
+│   │   ├── README.md                  # lifecycle + estrutura
+│   │   ├── _templates/                # proposal/design/tasks/harness-verdict
+│   │   └── archive/                   # recaps breves das changes fechadas
+│   ├── agents/                        # profile ativo (default fibonacci)
 │   │   ├── operador.md                # planejador Opus (demanda multi-papel)
 │   │   ├── dev.md                     # implementador
 │   │   ├── analista.md                # investigador read-only
-│   │   └── escriba.md                 # mantém docs em sync (não toca código)
+│   │   ├── escriba.md                 # mantém docs em sync (não toca código)
+│   │   ├── seguranca.md               # harness: audita segurança do diff
+│   │   ├── testes.md                  # harness: roda suíte + cobertura
+│   │   └── protecao-dados.md          # harness: privacidade (LGPD/GDPR via config)
 │   ├── hooks/
 │   │   ├── check-sync-project-map.sh  # PostToolUse — reminder pós-edit
 │   │   ├── check-session-lock.sh      # PreToolUse — aviso de arquivo reivindicado
+│   │   ├── check-harness-gate.sh      # PreToolUse — bloqueia archive sem 4 vereditos
 │   │   └── on-stop-check.sh           # Stop — lembrete de fechamento
 │   ├── settings.template.json         # registra os hooks acima
+│   ├── harness.config.template        # jurisdição (LGPD/GDPR) + baselines do gate
 │   └── SESSION_LOCK.template.md       # coordenação de sessões paralelas
 └── memory/
     └── _PATTERNS.md                   # padrões de auto-memory reutilizáveis

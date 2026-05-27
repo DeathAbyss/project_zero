@@ -60,6 +60,9 @@ em vez de duplicar — economiza token por turno.
   quando despachar sub-agente, Camadas 1/2, briefing mastigado.
 - [`.claude/docs/04-task-closure.md`](.claude/docs/04-task-closure.md)
   — checklist antes de declarar concluído.
+- [`.claude/docs/05-harness.md`](.claude/docs/05-harness.md) — gate de
+  verificação (segurança, testes, proteção de dados, qualidade) + ciclo
+  de fix automático. LEIA antes de fechar uma change.
 - [`.claude/docs/SECURITY_NOTES.md`](.claude/docs/SECURITY_NOTES.md) —
   arquivos sensíveis (`.env`, chaves, credenciais) que NÃO tocar.
 
@@ -75,6 +78,33 @@ em vez de duplicar — economiza token por turno.
 2. {{PROJECT_HARD_RULE — preencher ou remover}}. Ex.: "Sem dependências
    externas no runtime"; "Toda string visível passa por i18n"; "Nada
    de SQL inline — só via repository".
+
+## Desenvolvimento com SDD + harness
+
+Mudança não-trivial segue o fluxo spec-driven próprio (recap-only):
+
+```text
+[explore] → propose → design → tasks → implementa → [ HARNESS GATE ↻ ] → archive
+```
+
+- Ideia vaga: começa com [`sdd-explore`](.claude/skills/sdd-explore/SKILL.md) —
+  coleta info e enquadra as decisões pro você decidir (nunca decide por você).
+  Ideia clara pula direto pro propose.
+- Abre com a skill [`sdd-propose`](.claude/skills/sdd-propose/SKILL.md); fecha
+  com [`sdd-archive`](.claude/skills/sdd-archive/SKILL.md). Artefatos transitórios
+  em `.claude/changes/<nome>/`; o archive compacta num recap breve e apaga o dir.
+- **Gate obrigatório-triado**: antes de arquivar, 4 perspectivas verificam
+  a mudança — `seguranca`, `testes`, `protecao-dados` (agentes) +
+  `code-review-and-quality` (skill rodada pelo principal). Cada uma grava
+  veredito em `harness/` com status {PASS, N/A, BLOCKED}. `N/A + justificativa`
+  é válido pra mudança que não toca o eixo.
+- O hook `check-harness-gate.sh` **bloqueia** o archive enquanto os 4
+  vereditos não forem {PASS, N/A}. Doutrina completa (loop de fix, cap=2,
+  ripple, severidade): [`.claude/docs/05-harness.md`](.claude/docs/05-harness.md).
+- Jurisdição de proteção de dados e baselines: `.claude/harness.config`.
+
+Mudança trivial (1-2 linhas, doc, typo) não precisa de SDD — faz direto;
+o gate só dispara quando há change-dir aberto.
 
 ## Arquitetura
 

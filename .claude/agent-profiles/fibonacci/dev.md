@@ -51,3 +51,18 @@ ambíguo, devolve "preciso de X pra implementar" sem chutar.
 - 1 frase explicando o "porquê" (não "o quê" — o diff já mostra)
 - Se descobriu gotcha durante a implementação, reporta pro principal
   pra eventualmente documentar em CLAUDE.md
+
+## Quando usado como teammate (Agent Team)
+
+`SendMessage` fica disponível automaticamente. Quando spawnado como
+teammate em vez de subagent:
+
+- **Conclusão** — reporta o diff + "porquê" ao lead via SendMessage ao
+  terminar a task; marca a task como completa na task list.
+- **Bloqueio** — spec ambígua ou dep faltando? SendMessage ao lead pedindo
+  o que falta, em vez de chutar comportamento.
+- **Conflito de arquivo** — só edita os arquivos da sua task. Se precisar
+  tocar arquivo de outro teammate, coordena por SendMessage antes — edição
+  paralela do mesmo arquivo sobrescreve.
+- **Contrato compartilhado** — vai expor interface que outro teammate
+  consome (ex.: tests)? Manda a assinatura cedo pra ele começar em paralelo.

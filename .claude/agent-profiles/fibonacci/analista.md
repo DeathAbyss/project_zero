@@ -88,3 +88,17 @@ dev/escriba/etc. Use o formato canônico de briefing
 Pula esta seção se a investigação não habilita ação direta
 (ex.: relatório só pra usuário decidir).>
 ```
+
+## Quando usado como teammate (Agent Team)
+
+`SendMessage` fica disponível automaticamente mesmo com seu toolset
+read-only. Quando spawnado como teammate em vez de subagent:
+
+- **Conclusão** — envia o relatório ao lead via SendMessage, não só
+  encerra. O lead não faz polling; se você não reportar, ele não sabe.
+- **Descoberta crítica** — achou algo que muda o rumo (bug grave, premissa
+  falsa)? SendMessage imediato ao lead, não espera terminar a varredura.
+- **Bloqueio** — falta acesso/contexto pra investigar? SendMessage ao lead
+  descrevendo o impasse em vez de chutar ou parar em silêncio.
+- **Outro teammate** — se outro teammate depende do seu achado, manda
+  direto a ele por nome (ex.: "dev: a função X está em `file:42`").

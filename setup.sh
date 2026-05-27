@@ -155,6 +155,7 @@ copy_if_absent "$PROJECT_ZERO/.claude/docs/01-git.md"               "$DEST/$AI_N
 copy_if_absent "$PROJECT_ZERO/.claude/docs/02-token-efficiency.md"  "$DEST/$AI_NS/docs/02-token-efficiency.md"
 copy_if_absent "$PROJECT_ZERO/.claude/docs/03-multiagent.md"        "$DEST/$AI_NS/docs/03-multiagent.md"
 copy_if_absent "$PROJECT_ZERO/.claude/docs/04-task-closure.md"      "$DEST/$AI_NS/docs/04-task-closure.md"
+copy_if_absent "$PROJECT_ZERO/.claude/docs/05-harness.md"           "$DEST/$AI_NS/docs/05-harness.md"
 copy_if_absent "$PROJECT_ZERO/.claude/docs/decisions/README.md"     "$DEST/$AI_NS/docs/decisions/README.md"
 copy_if_absent "$PROJECT_ZERO/.claude/docs/decisions/_TEMPLATE.md"  "$DEST/$AI_NS/docs/decisions/_TEMPLATE.md"
 copy_if_absent "$PROJECT_ZERO/.claude/docs/project_map/_GUIDE.md"   "$DEST/$AI_NS/docs/project_map/_GUIDE.md"
@@ -176,8 +177,21 @@ copy_if_absent "$PROJECT_ZERO/.claude/hooks/check-session-lock.sh" \
                "$DEST/$AI_NS/hooks/check-session-lock.sh"
 copy_if_absent "$PROJECT_ZERO/.claude/hooks/on-stop-check.sh" \
                "$DEST/$AI_NS/hooks/on-stop-check.sh"
+copy_if_absent "$PROJECT_ZERO/.claude/hooks/check-harness-gate.sh" \
+               "$DEST/$AI_NS/hooks/check-harness-gate.sh"
 copy_if_absent "$PROJECT_ZERO/.claude/SESSION_LOCK.template.md" \
                "$DEST/$AI_NS/SESSION_LOCK.md"
+
+# SDD + harness: config (rename .template → real) + estrutura changes/
+copy_if_absent "$PROJECT_ZERO/.claude/harness.config.template" \
+               "$DEST/$AI_NS/harness.config"
+copy_if_absent "$PROJECT_ZERO/.claude/changes/README.md" \
+               "$DEST/$AI_NS/changes/README.md"
+for tmpl in "$PROJECT_ZERO/.claude/changes/_templates/"*.md; do
+  name=$(basename "$tmpl")
+  copy_if_absent "$tmpl" "$DEST/$AI_NS/changes/_templates/$name"
+done
+mkdir -p "$DEST/$AI_NS/changes/archive"
 
 echo
 echo "[2/6] Mesclando .gitignore..."

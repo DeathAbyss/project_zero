@@ -13,6 +13,7 @@ Multi-dimensional code review with quality gates. Every change gets reviewed bef
 
 ## When to Use
 
+- As the **quality perspective of the harness gate** — the principal runs this skill at the SDD gate alongside the `seguranca`/`testes`/`protecao-dados` agents, writing its verdict to `.claude/changes/<name>/harness/code-review.md`. See [`.claude/docs/05-harness.md`](../../docs/05-harness.md).
 - Before merging any PR or change
 - After completing a feature implementation
 - When another agent or model produced code you need to evaluate
