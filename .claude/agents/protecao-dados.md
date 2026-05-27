@@ -14,7 +14,7 @@ description: |
   NÃO use pra: implementar o fix (dev/worker), parecer jurídico formal
   (não é advogado — sinaliza risco, recomenda revisão humana quando grave),
   decisão de escopo (planejador).
-tools: Read, Grep, Glob
+tools: Read, Grep, Glob, Write
 model: opus
 ---
 

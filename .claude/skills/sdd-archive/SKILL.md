@@ -8,8 +8,9 @@ description: |
   Triggers manuais: "arquiva a change X", "fecha o SDD de Y", "compacta
   a change", "/sdd-archive", "terminei a feature, pode arquivar".
 
-  NÃO usa pra: criar change (sdd-propose); implementar (dev/worker);
-  pular o gate (o hook bloqueia archive sem os 4 vereditos).
+  NÃO usa pra: criar change (sdd-propose); implementar / rodar o gate
+  (sdd-apply faz ambos — o gate roda na cauda da implementação); pular o
+  gate (o hook bloqueia archive sem os 4 vereditos).
 ---
 
 # sdd-archive
@@ -27,44 +28,24 @@ Antes de qualquer escrita em `archive/`, os 4 vereditos em
 
 Se faltar veredito ou algum estiver `BLOCKED`, o hook
 [`check-harness-gate.sh`](../../hooks/check-harness-gate.sh) **bloqueia** a
-escrita do recap. Não tente contornar — resolve o gate primeiro (roda os
-agentes faltantes / corrige os achados / justifica N/A).
-
-## Gate paralelo (Agent Team)
-
-Os 3 agentes de harness gravam em arquivos disjuntos (`security.md`,
-`tests.md`, `data-protection.md`) — zero conflito. Rode-os como **teammates
-paralelos** em vez de subagents sequenciais (~3x mais rápido):
-
-```
-spawn teammate "seguranca"       ┐
-spawn teammate "testes"          ├─ simultâneos, cada um grava seu harness/*.md
-spawn teammate "protecao-dados"  ┘
-aguarda os 3 TeamateIdle (hook check-teammate-verdict bloqueia idle
-  sem o arquivo de veredito gravado)
-→ principal roda a skill code-review-and-quality (4ª perspectiva)
-→ confere o gate (abaixo)
-```
-
-Cada teammate recebe briefing mastigado: o diff/`file:line`, o change-dir,
-o contexto da feature. Cada um envia SendMessage ao lead com 1 linha de
-sumário ao concluir. Fallback: se Agent Teams indisponível, despacha os 3
-como subagents sequenciais — o gate funciona igual, só mais lento.
+escrita do recap. Não tente contornar — o gate é responsabilidade do
+`sdd-apply` (que o roda na cauda da implementação). Veredito faltando ou
+`BLOCKED` → volta pro `sdd-apply` resolver os achados antes de arquivar.
 
 ## Workflow
 
 1. **Seleciona a change** — nome dado, ou infere do contexto, ou lista
    `.claude/changes/*/` e pergunta.
-2. **Roda o gate** — despacha os 3 agentes de harness em paralelo (acima)
-   + a skill code-review-and-quality. Aguarda os 4 vereditos.
-3. **Confere o gate** — lê os 4 arquivos `harness/`. Algum faltando/BLOCKED
-   → para e reporta o que falta. Não arquiva.
-4. **Gera o recap** — lê proposal/design/tasks/harness e escreve
+2. **Confere o gate** — lê os 4 arquivos `harness/` (já gravados pelo
+   `sdd-apply`, que roda o gate na cauda da implementação). **Não despacha
+   agente.** Algum faltando/`BLOCKED` → para e reporta que o gate não
+   fechou; manda voltar pro `sdd-apply` resolver. Não arquiva.
+3. **Gera o recap** — lê proposal/design/tasks/harness e escreve
    `archive/<nome>.md` BREVE (formato abaixo). Foco no que foi FEITO, não
    no que se planejou.
-5. **Apaga o change-dir** — `rm -rf .claude/changes/<nome>/`. Recap +
+4. **Apaga o change-dir** — `rm -rf .claude/changes/<nome>/`. Recap +
    git são o histórico; o transitório não fica.
-6. **Reporta** — "arquivada em `archive/<nome>.md`, change-dir removido."
+5. **Reporta** — "arquivada em `archive/<nome>.md`, change-dir removido."
 
 ## Formato do recap (breve)
 

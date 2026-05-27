@@ -17,9 +17,8 @@ nova não degrada segurança, testes nem proteção de dados sem alguém ver.
 
 - `explore` (opcional): skill [`sdd-explore`](../skills/sdd-explore/SKILL.md). Coleta info e enquadra decisões pro usuário (não decide). Ideia clara pula.
 - `propose/design/tasks`: skill [`sdd-propose`](../skills/sdd-propose/SKILL.md). Artefatos transitórios em `.claude/changes/<nome>/`.
-- `implementa`: dev/worker a partir de `tasks.md`.
-- `HARNESS GATE`: as 4 perspectivas abaixo. Bloqueia archive até resolver.
-- `archive`: skill [`sdd-archive`](../skills/sdd-archive/SKILL.md). Compacta tudo em recap breve, apaga o change-dir. **Recap-only — sem living-spec.**
+- `implementa + HARNESS GATE`: skill [`sdd-apply`](../skills/sdd-apply/SKILL.md). Implementa as tasks **e**, na cauda, auto-dispara o gate (as 4 perspectivas abaixo) — o gate é o ato de fechamento da implementação, não da arquivação. O fix loop também roda aqui.
+- `archive`: skill [`sdd-archive`](../skills/sdd-archive/SKILL.md). **Só confere** os 4 vereditos (o gate já rodou no apply), compacta tudo em recap breve, apaga o change-dir. **Recap-only — sem living-spec.**
 
 ## As 4 perspectivas do gate
 
@@ -28,15 +27,19 @@ nova não degrada segurança, testes nem proteção de dados sem alguém ver.
 | Segurança | agente `seguranca` | vuln, authz, input, segredo | sim (npm audit/etc) + opina |
 | Testes | agente `testes` | cobertura, suíte verde | sim (pytest/jest/go test/etc) + opina |
 | Proteção de dados | agente `protecao-dados` | base legal, minimização, retenção | opina (config de jurisdição) |
-| Qualidade | skill `code-review-and-quality` | correção, legibilidade, arquitetura, perf | principal roda a skill no gate |
+| Qualidade | skill `code-review-and-quality` | correção, legibilidade, arquitetura, perf | `sdd-apply` roda a skill no gate |
 
 Os 3 agentes são **sempre presentes** (entram em qualquer profile). A
-4ª perspectiva é a skill, rodada pelo principal — não é agente.
+4ª perspectiva é a skill, rodada pelo `sdd-apply` — não é agente.
 
 Cada perspectiva grava seu veredito em `.claude/changes/<nome>/harness/`:
 `security.md`, `tests.md`, `data-protection.md`, `code-review.md`.
 
 ## Execução do gate (paralela via Agent Teams)
+
+Quem dispara o gate é a skill [`sdd-apply`](../skills/sdd-apply/SKILL.md),
+na cauda da implementação — o detalhe operacional ("como spawnar") vive lá.
+Aqui fica o conceito.
 
 Os 3 agentes gravam em arquivos disjuntos → zero conflito → rodam em
 **paralelo como teammates** (~3x mais rápido que sequencial):
@@ -46,7 +49,7 @@ spawn teammate seguranca       ┐
 spawn teammate testes          ├─ simultâneos; cada um grava seu harness/*.md
 spawn teammate protecao-dados  ┘  e manda SendMessage ao lead com 1 linha
 aguarda os 3 TeammateIdle
-→ principal roda a skill code-review-and-quality (4ª perspectiva)
+→ sdd-apply roda a skill code-review-and-quality (4ª perspectiva)
 → confere os 4 vereditos (gate abaixo)
 ```
 
@@ -54,9 +57,12 @@ aguarda os 3 TeammateIdle
   bloqueia o encerramento de um agente de harness que não gravou seu
   veredito — garante que nenhum teammate fica idle sem fechar sua parte.
 - **Fallback**: sem Agent Teams (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`
-  desligado, ou agente não-Claude), despacha os 3 como subagents
-  sequenciais. O gate funciona igual — só mais lento. Ver dimensão
+  desligado, ou agente não-Claude), `sdd-apply` não auto-spawna; o gate
+  vira checklist manual nos arquivos `harness/` e o hook ainda bloqueia o
+  archive. O gate funciona igual — só sem o paralelismo. Ver dimensão
   subagent-vs-teammate em [`03-multiagent.md`](03-multiagent.md).
+
+Detalhe operacional do dispatch na skill [`sdd-apply`](../skills/sdd-apply/SKILL.md).
 
 ## Mandatório-triado
 
@@ -133,19 +139,20 @@ Impacto puramente arquitetural (ex: "quebra contrato pro mobile") **não**
 
 ## Ciclo de fix automático
 
-Quem dirige o loop de fix é o **principal** (modo subagent) ou o **lead/
-orquestrador** (modo Agent Team) — o agente de harness só acha e devolve
-briefing, nunca corrige a si mesmo. Ver
+O loop de fix roda **dentro de `sdd-apply`** (a mesma skill que disparou
+o gate) — os workers dev já estão spawnados ali, então achado → fix →
+re-gate fica na mesma skill, sem repassar contexto pro archive. O agente
+de harness só acha e devolve briefing, nunca corrige a si mesmo. Ver
 [`03-multiagent.md`](03-multiagent.md):
 
 ```text
-principal despacha harness
+sdd-apply dispara o gate
    │
    ▼
 agente acha problema → devolve {achado + fix briefing file:line}
    │
    ▼
-principal classifica:
+sdd-apply classifica:
    ├─ CRÍTICO/obrigatório + fix mecânico óbvio → FULL-AUTO: despacha dev, re-roda harness
    ├─ decisão de ESCOPO → CHECKPOINT humano (não decide sozinho)
    └─ nit/opcional → deferido (anota no recap, não corrige)
@@ -164,13 +171,16 @@ principal classifica:
 
 ## Enforcement
 
-- Gate é **duro no archive**: hook `PreToolUse` bloqueia escrita em
+- O gate **roda no `sdd-apply`** (cauda da implementação). O hook
+  `PreToolUse` ([`check-harness-gate.sh`](../hooks/check-harness-gate.sh))
+  é a **rede de segurança no archive**: bloqueia escrita em
   `.claude/changes/archive/` enquanto os 4 vereditos não forem
-  {PASS, N/A}. Único ponto de bloqueio — não atrapalha o trabalho, só
-  impede fechar mal.
-- Em agente não-Claude (Cursor/Cline/etc.) sem auto-despacho: o gate vira
-  checklist manual nos arquivos `harness/` + o hook ainda bloqueia o
-  archive. Perde o loop automático, mantém a obrigatoriedade.
+  {PASS, N/A}. Pega o caso de o apply ter pulado o gate — não é onde o
+  gate roda, é onde se garante que rodou.
+- Em agente não-Claude (Cursor/Cline/etc.) sem auto-despacho: `sdd-apply`
+  não auto-spawna; o gate vira checklist manual nos arquivos `harness/` +
+  o hook ainda bloqueia o archive. Perde o loop automático, mantém a
+  obrigatoriedade.
 
 ## Config
 

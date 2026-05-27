@@ -32,7 +32,11 @@ RESULT=$(node -e '
       const name = m[1];
       if (name === "" || name === ".gitkeep") { process.stdout.write("ALLOW"); return; }
 
-      const dir = ".claude/changes/" + name + "/harness";
+      const dotClaudeIdx = fp.lastIndexOf("/.claude/changes/archive/");
+      const root = dotClaudeIdx !== -1
+        ? fp.slice(0, dotClaudeIdx)
+        : (process.env.CLAUDE_PROJECT_DIR || ".").replace(/\\/g, "/");
+      const dir = root + "/.claude/changes/" + name + "/harness";
       const required = ["security.md", "tests.md", "data-protection.md", "code-review.md"];
       const missing = [];
       const blocked = [];

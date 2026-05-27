@@ -158,6 +158,17 @@ de 1 unidade roda mais barato em sessão única. O default-paralelo é sobre
 Sub-agente tem boot cost. Vale quando o trade entrega ganho real de
 contexto/especialização — não como hábito automático.
 
+> **Fronteira: ad-hoc vs dentro do fluxo SDD.** Tudo acima (escape hatch
+> "1 task → faz direto", "Quando NÃO usar sub-agente", Camada 1) vale pra
+> trabalho **AD-HOC fora do SDD**. DENTRO das skills SDD (`sdd-explore`,
+> `sdd-apply`) o dispatch de agentes é **OBRIGATÓRIO** (mandatório-triado):
+> a skill delega sempre, o principal não absorve inline. O filtro de
+> trivialidade roda na **ENTRADA do fluxo SDD** — mudança trivial nem entra
+> no SDD; uma vez dentro, delega sempre. Sem essa fronteira, "dispatch
+> obrigatório" e "faz direto pra trivial" pareceriam se contradizer — não
+> se contradizem porque atuam em camadas diferentes: trivialidade filtra na
+> porta de entrada, não no interior das skills.
+
 ## Briefing mastigado
 
 Todo `prompt` do `Agent()` deve levar paths com `file:line` quando

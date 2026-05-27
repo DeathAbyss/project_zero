@@ -39,7 +39,9 @@ externa.
    nova, ou trade-off não-óbvio. Mudança simples pula.
 5. **tasks.md** — copia de `_templates/tasks.md`. Quebra em tarefas
    pequenas verificáveis `- [ ]`, ordenadas por dependência. Mantém a
-   tarefa de gate no fim.
+   tarefa de gate no fim — essa linha é o gatilho que o `sdd-apply`
+   consome: ele roda o gate na cauda e marca `[x]` quando os 4 vereditos
+   ficam {PASS, N/A}.
 6. **Reporta** — lista artefatos criados + "pronto pra implementar: pega
    `tasks.md`. Ao fechar, roda `sdd-apply`."
 
@@ -47,6 +49,9 @@ externa.
 
 - **Não cria design por padrão.** Default é proposal + tasks. Design é
   exceção justificada.
+- **Não chama agente.** Propose só gera artefatos (proposal/design/tasks).
+  Investigação prévia é do `sdd-explore` (que despacha analista/architect);
+  implementação + gate são do `sdd-apply`.
 - **Não implementa.** Propose só gera os artefatos. Implementação é etapa
   seguinte (dev/worker).
 - **Não infla.** Proposal 1 página, tasks pequenas. Detalhe de "como" vai

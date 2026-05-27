@@ -41,42 +41,47 @@ explorar.
 - Não implementa. Não escreve artefato em disco (isso é do sdd-propose).
 - Dossiê vive na conversa — não cria `.md` sem ser pedido.
 
-## Ferramentas de coleta (o principal puxa)
+## Dispatch obrigatório (analista + architect)
 
-| Precisa de | Puxa | Como |
-|---|---|---|
-| topologia do código | `project_map` | lê `.claude/docs/project_map/` antes de greppar |
-| fato / onde está / o que depende | agente `analista` | despacha read-only, volta resumo |
-| trade-off entre 2+ abordagens | agente `architect` | despacha; recomendação vira insumo |
-| input é lista bagunçada de features | skill `roadmap-review` | atomiza / gaps / deps / perguntas |
-| decisão anterior / por quê | `.claude/docs/decisions/` | confere ADR antes de reabrir |
+Todo `sdd-explore` SEMPRE spawna `analista` + `architect` como **teammates
+paralelos** — mandatório-triado, leitura forte. NÃO é "conforme necessidade":
+ambos são chamados em toda exploração; podem voltar pouco/N/A, mas o dispatch
+é garantido. Separação de responsabilidade: a skill orquestra, os agentes
+executam o trabalho de coleta e avaliação.
 
-Sub-agente não despacha sub-agente — o principal (rodando esta skill)
-é quem despacha. Ver `03-multiagent.md`.
-
-### Coleta paralela (Agent Team)
-
-Quando a exploração precisa de mais de uma perspectiva ao mesmo tempo
-(ex.: `analista` mapeia o código E `architect` avalia trade-offs), spawna
-os dois como **teammates paralelos** em vez de subagents sequenciais —
-é o caso de uso "pesquisa com múltiplas perspectivas simultâneas" pra que
-Agent Teams foi feito.
+| Agente | Papel explícito |
+|---|---|
+| `analista` | Mapeia o código **read-only** — topologia, onde está, o que depende de quê, evidência `file:line`. Volta resumo destilado (não dump bruto). |
+| `architect` | Avalia trade-offs entre as abordagens em jogo. A recomendação volta ETIQUETADA como insumo de terceiro — NUNCA vira veredito do explore. |
 
 ```
-spawn teammate "analista"   ┐  cada um investiga seu ângulo
+spawn teammate "analista"   ┐  cada um investiga seu ângulo em paralelo
 spawn teammate "architect"  ┘  e envia SendMessage com os achados
 aguarda ambos → compila o dossiê com os inputs paralelos
 ```
 
-A recomendação do architect continua entrando **etiquetada** como insumo
-de terceiro — paralelizar a coleta não muda o princípio central (o explore
-não decide). Fallback: sem Agent Teams, despacha como subagents sequenciais.
+A recomendação do architect continua entrando **etiquetada** como insumo de
+terceiro — tornar o dispatch obrigatório NÃO muda o princípio central (o
+explore não decide). Fallback: sem Agent Teams, despacha como subagents
+sequenciais. Sub-agente não despacha sub-agente — o principal (rodando esta
+skill) é quem despacha. Ver `03-multiagent.md`.
+
+## Ferramentas auxiliares (puxa conforme necessidade)
+
+Além do dispatch obrigatório acima, puxe conforme a exploração pedir:
+
+| Precisa de | Puxa | Como |
+|---|---|---|
+| topologia do código | `project_map` | lê `.claude/docs/project_map/` antes de greppar |
+| input é lista bagunçada de features | skill `roadmap-review` | atomiza / gaps / deps / perguntas |
+| decisão anterior / por quê | `.claude/docs/decisions/` | confere ADR antes de reabrir |
 
 ## Workflow
 
 1. **Entende o pedido** — reformula em 1-2 frases o que vai explorar.
    Se genuinamente vago, faz 1 pergunta de enquadramento (não script).
-2. **Coleta** — puxa as ferramentas acima conforme a necessidade.
+2. **Coleta** — spawna `analista` + `architect` em paralelo (obrigatório)
+   e puxa as ferramentas auxiliares conforme a necessidade.
    Levanta também as **superfícies de harness** (shift-left): toca dado
    pessoal? superfície de ataque? muda comportamento testável? — como
    INFORMAÇÃO, não triagem-veredito.
