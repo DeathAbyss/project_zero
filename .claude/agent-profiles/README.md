@@ -31,6 +31,19 @@ ganho de especialização. Worker absorve o trabalho do analista + dev +
 escriba; architect substitui operador com decomposição mais simples
 (só "principal faz" vs "worker faz").
 
+## Agentes de harness (sempre presentes)
+
+Independente do profile ativo, os 3 agentes do gate de verificação
+ficam em todos os profiles:
+
+- **seguranca** — audita o diff por vuln/authz/input/segredo
+- **testes** — roda a suíte, avalia cobertura
+- **protecao-dados** — checa privacidade (LGPD/GDPR via config)
+
+São ortogonais ao eixo planejar-vs-implementar dos profiles. Ao criar
+profile novo, inclua os 3 (clonar de `fibonacci` ou `lean` já traz).
+Doutrina do gate: [`../docs/05-harness.md`](../docs/05-harness.md).
+
 ## Trocar profile
 
 ```bash

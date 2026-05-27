@@ -1,5 +1,5 @@
 {
-  "_comment_": "Configuração mínima do Claude Code: hook do project_map + permissões preset pra comandos read-only que aceleram o fluxo. Renomeie pra .claude/settings.json no projeto destino. Se já existir, mescle os blocos manualmente.",
+  "_comment_": "Configuração mínima do Claude Code: hooks (project_map, session-lock, harness-gate) + permissões preset pra comandos read-only que aceleram o fluxo. Renomeie pra .claude/settings.json no projeto destino. Se já existir, mescle os blocos manualmente.",
 
   "permissions": {
     "allow": [
@@ -30,6 +30,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/check-session-lock.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/check-harness-gate.sh"
           }
         ]
       }

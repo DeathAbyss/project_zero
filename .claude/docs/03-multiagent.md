@@ -6,8 +6,8 @@ sua especialidade.
 
 ## Regra fundamental
 
-**Sub-agente NÃO pode invocar outro sub-agente** (limitação do Claude
-Code). Por isso o padrão é:
+**Sub-agente NÃO pode invocar outro sub-agente.** Por isso o padrão de
+subagent é hub-and-spoke — o principal é o único que despacha:
 
 ```text
 usuario → principal → operador (planeja, devolve plano)
@@ -19,6 +19,12 @@ usuario → principal → operador (planeja, devolve plano)
                        ↓
                   principal consolida
 ```
+
+Essa regra vale pro modelo **subagent** (`Agent()`). O **Agent Teams**
+(modo experimental, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) levanta a
+restrição: teammates rodam em paralelo, se comunicam via SendMessage e
+coordenam por uma task list compartilhada. Ver a dimensão subagent-vs-
+teammate abaixo.
 
 ## Quem usar quando
 
@@ -74,6 +80,73 @@ com 5?", não "isso é 4?".
 - Nível 5 vira 8 quando: aparece decisão de escopo que precisa
   validação humana antes de seguir.
 
+## Dimensão subagent vs teammate (Agent Teams)
+
+Camadas 1/2 decidem SE delega e QUE time montar. Esta dimensão decide o
+**mecanismo**: subagent (`Agent()`) ou teammate (Agent Team).
+
+```
+                 SUBAGENT                    TEAMMATE
+                 ════════                    ════════
+contexto         isolado, resultado          isolado, sessão própria
+                 volta pro principal         independente
+comunicação      só devolve no fim           SendMessage entre todos
+                                             + ao lead, durante o trabalho
+coordenação      principal orquestra tudo    task list compartilhada,
+                                             self-claim, auto-coordenação
+custo            1× boot por agente          N× context window (caro)
+melhor pra       worker focado, resultado    paralelismo real +
+                 importa, sem conversa       comunicação entre workers
+```
+
+### Default: decompõe e paraleliza
+
+O viés é **decompor o trabalho e rodar em paralelo**. Sequencial e single
+não são o ponto de partida — são o que sobra quando algo **força**:
+
+```
+pergunta antes de despachar:
+  "dá pra quebrar isso em unidades independentes?"
+        │
+   ┌────┴────┐
+  SIM        NÃO (1 unidade, ou cadeia de deps)
+   │          │
+   ▼          ▼
+PARALELO   colapsa pra sequencial/single
+(teammates  (caso degenerado, não default)
+ ou subagent
+ paralelo)
+```
+
+O que **força** colapsar pro sequencial/single (e só isso):
+
+| Força | Resultado |
+|---|---|
+| 1 unidade de trabalho (fix de 1 linha, 1 grep) | single — principal faz direto |
+| Cadeia de dependência (B precisa do output de A) | serializa só a aresta dependente; ramos paralelos seguem paralelos |
+| Edição do MESMO arquivo por 2+ workers | serializa esses, ou divide por arquivo |
+
+### Mecanismo: teammate vs subagent paralelo
+
+Decidido que paraleliza, escolhe o mecanismo:
+
+| Sinal | Mecanismo |
+|---|---|
+| Workers precisam conversar / coordenar / se desafiar durante o trabalho | **teammate** (SendMessage + task list) |
+| Workers independentes, sem conversa, só resultado | **subagent paralelo** (`Agent()` no mesmo turno) — mais barato |
+| Gate harness, explore multi-perspectiva, grafo de tasks | teammate paralelo |
+
+**Alerta de custo (não é teammate cego):** teammate custa N× context
+window. "Paralelizar por default" = paralelizar **quando há unidades
+independentes de verdade** — não spawnar teammate pra trabalho que tem
+1 unidade ou é cadeia pura. A doc do Agent Teams avisa: tarefa rotineira
+de 1 unidade roda mais barato em sessão única. O default-paralelo é sobre
+**topologia** (decompõe sempre que dá), não sobre forçar o mecanismo caro.
+
+> Agentes que coordenam (`operador`/`architect`) têm modo orquestrador:
+> como teammate, criam tasks e coordenam via SendMessage em vez de só
+> devolver plano. Ver o body de cada agente.
+
 ## Quando NÃO usar sub-agente
 
 - Edit de 1-2 linhas → principal faz direto.
@@ -84,6 +157,17 @@ com 5?", não "isso é 4?".
 
 Sub-agente tem boot cost. Vale quando o trade entrega ganho real de
 contexto/especialização — não como hábito automático.
+
+> **Fronteira: ad-hoc vs dentro do fluxo SDD.** Tudo acima (escape hatch
+> "1 task → faz direto", "Quando NÃO usar sub-agente", Camada 1) vale pra
+> trabalho **AD-HOC fora do SDD**. DENTRO das skills SDD (`sdd-explore`,
+> `sdd-apply`) o dispatch de agentes é **OBRIGATÓRIO** (mandatório-triado):
+> a skill delega sempre, o principal não absorve inline. O filtro de
+> trivialidade roda na **ENTRADA do fluxo SDD** — mudança trivial nem entra
+> no SDD; uma vez dentro, delega sempre. Sem essa fronteira, "dispatch
+> obrigatório" e "faz direto pra trivial" pareceriam se contradizer — não
+> se contradizem porque atuam em camadas diferentes: trivialidade filtra na
+> porta de entrada, não no interior das skills.
 
 ## Briefing mastigado
 

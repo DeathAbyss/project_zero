@@ -92,3 +92,18 @@ Modo **investigação** (sem edição):
 ### Recomendação
 <1-2 frases pro principal decidir.>
 ```
+
+## Quando usado como teammate (Agent Team)
+
+`SendMessage` fica disponível automaticamente. Quando spawnado como
+teammate em vez de subagent:
+
+- **Conclusão** — reporta o resultado (diff + "porquê", ou achados) ao
+  lead via SendMessage ao terminar; marca a task como completa.
+- **Bloqueio / escopo diferente** — SendMessage ao lead antes de chutar,
+  em vez de implementar comportamento ambíguo.
+- **Conflito de arquivo** — só edita os arquivos da sua task. Pra tocar
+  arquivo de outro teammate, coordena por SendMessage antes — edição
+  paralela do mesmo arquivo sobrescreve.
+- **Descoberta crítica** — achou algo que muda o rumo? SendMessage
+  imediato, não espera o fim da task.

@@ -1,0 +1,30 @@
+# Config da harness de verificação. Renomeie pra .claude/harness.config
+# no projeto destino. Lido sob demanda pelos agentes (seguranca, testes,
+# protecao-dados) — não carrega por turno.
+#
+# Formato: key: value. Listas separadas por vírgula entre [].
+
+# Jurisdição(ões) de proteção de dados que o agente protecao-dados aplica.
+# Valores: LGPD (Brasil) | GDPR (UE) | CCPA (Califórnia) | none
+# Vazio/none = agente só checa princípios genéricos (minimização, retenção,
+# consentimento) sem citar artigo de lei específico.
+data_protection: [LGPD]
+
+# Baseline de segurança que o agente seguranca usa como referência.
+# Valores: OWASP-Web | OWASP-Mobile | OWASP-API | CIS | none
+security_baseline: OWASP-Web
+
+# Tipos de teste que o agente testes considera obrigatórios pra o gate.
+# Valores: unit | integration | e2e | contract | property
+test_kinds: [unit, integration]
+
+# Comando de teste do projeto. Vazio = agente auto-detecta pelo manifesto
+# (package.json scripts.test / pytest / go test ./... / cargo test / etc).
+test_command:
+
+# Severidade mínima que dispara fix automático no loop (full-auto).
+# Abaixo dela vira "deferido" no recap. Valores: critical | required
+autofix_threshold: required
+
+# Cap de voltas do loop fix→re-harness antes de checkpoint humano.
+loop_cap: 2
